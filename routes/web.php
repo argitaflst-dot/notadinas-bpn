@@ -4,13 +4,15 @@ use App\Http\Controllers\BerkasController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [BerkasController::class, 'create'])->name('berkas.create');
-Route::get('/input-berkas', [BerkasController::class, 'create'])->name('berkas.create');
-Route::post('/input-berkas', [BerkasController::class, 'store'])->name('berkas.store');
+
+Route::get('/input-berkas', [BerkasController::class, 'create'])
+    ->name('berkas.create');
+
+Route::post('/input-berkas', [BerkasController::class, 'store'])
+    ->name('berkas.store');
 
 // Endpoint AJAX untuk cascading dropdown
 Route::get('/jenis-layanan/{seksi}', [BerkasController::class, 'getJenisLayanan'])
     ->name('jenis-layanan.by-seksi');
 
-// Route lain (sesuaikan controller-nya nanti)
-// Route::get('/pilih-berkas', [PilihBerkasController::class, 'index'])->name('berkas.pilih');
-// Route::get('/riwayat', [RiwayatController::class, 'index'])->name('berkas.riwayat');
+// Nanti kita tambahkan route lain di sini
