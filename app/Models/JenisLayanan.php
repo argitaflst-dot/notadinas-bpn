@@ -12,19 +12,20 @@ class JenisLayanan extends Model
     use HasFactory;
 
     protected $table = 'jenis_layanan';
+    protected $primaryKey = 'id_jenis_layanan';
 
     protected $fillable = [
-        'seksi_id',
+        'id_seksi',
         'nama_layanan',
     ];
 
     public function seksi()
     {
-        return $this->belongsTo(Seksi::class);
+        return $this->belongsTo(Seksi::class, 'id_seksi', 'id_seksi');
     }
 
     public function berkas()
     {
-        return $this->hasMany(Berkas::class);
+        return $this->hasMany(Berkas::class, 'id_jenis_layanan', 'id_jenis_layanan');
     }
 }
