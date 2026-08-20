@@ -8,9 +8,9 @@ use App\Models\JenisLayanan;
 
 class Seksi extends Model
 {
-    use HasFactory;
 
     protected $table = 'seksi';
+    protected $primaryKey = 'id_seksi';
 
     protected $fillable = [
         'nama_seksi',
@@ -18,6 +18,11 @@ class Seksi extends Model
 
     public function jenisLayanan()
     {
-        return $this->hasMany(JenisLayanan::class);
+        return $this->hasMany(JenisLayanan::class, 'id_seksi', 'id_seksi');
+    }
+
+    public function berkas()
+    {
+        return $this->hasMany(Berkas::class, 'id_seksi', 'id_seksi');
     }
 }

@@ -1,18 +1,16 @@
 <?php
 
+use App\Http\Controllers\BerkasController;
 use Illuminate\Support\Facades\Route;
 
-/*
-|--------------------------------------------------------------------------
-| Web Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register web routes for your application. These
-| routes are loaded by the RouteServiceProvider and all of them will
-| be assigned to the "web" middleware group. Make something great!
-|
-*/
+Route::get('/', [BerkasController::class, 'create'])->name('berkas.create');
+Route::get('/input-berkas', [BerkasController::class, 'create'])->name('berkas.create');
+Route::post('/input-berkas', [BerkasController::class, 'store'])->name('berkas.store');
 
-Route::get('/', function () {
-    return view('welcome');
-});
+// Endpoint AJAX untuk cascading dropdown
+Route::get('/jenis-layanan/{seksi}', [BerkasController::class, 'getJenisLayanan'])
+    ->name('jenis-layanan.by-seksi');
+
+// Route lain (sesuaikan controller-nya nanti)
+// Route::get('/pilih-berkas', [PilihBerkasController::class, 'index'])->name('berkas.pilih');
+// Route::get('/riwayat', [RiwayatController::class, 'index'])->name('berkas.riwayat');
