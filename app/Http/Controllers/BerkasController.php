@@ -59,4 +59,13 @@ class BerkasController extends Controller
 
         return response()->json($jenisLayanan);
     }
+
+    public function pilih()
+    {
+        $berkasList = Berkas::with('jenisLayanan.seksi')
+            ->orderByDesc('tanggal_pendaftaran')
+            ->get();
+
+        return view('berkas.pilih', compact('berkasList'));
+    }
 }
