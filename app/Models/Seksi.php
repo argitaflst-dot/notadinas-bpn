@@ -9,7 +9,11 @@ use App\Models\Berkas;
 class Seksi extends Model
 {
     protected $table = 'seksi';
-    protected $primaryKey = 'id_seksi';
+
+    public function getIdSeksiAttribute()
+    {
+        return $this->attributes['id'];
+    }
 
     protected $fillable = [
         'nama_seksi',
@@ -19,8 +23,8 @@ class Seksi extends Model
     {
         return $this->hasMany(
             JenisLayanan::class,
-            'id_seksi',
-            'id_seksi'
+            'seksi_id',
+            'id'
         );
     }
 
@@ -28,8 +32,8 @@ class Seksi extends Model
     {
         return $this->hasMany(
             Berkas::class,
-            'id_seksi',
-            'id_seksi'
+            'seksi_id',
+            'id'
         );
     }
 }

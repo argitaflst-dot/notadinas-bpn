@@ -1,20 +1,25 @@
 <?php
 
 namespace App\Http\Controllers;
+
 use App\Models\NotaDinas;
-use APP\Models\Berkas;
+use App\Models\Berkas;
 use Illuminate\Http\Request;
 
 class NotaDinasController extends Controller
 {
     public function store(Request $request)
     {
-        $validated =$request->validated([
-            'berkas_id' => ['required', 'array', 'min:1'],
-            'berkas_id.*' => ['exists:berkas,id_berkas'],
+        return back()->withErrors([
+            'nota_dinas' => 'Halaman pembuatan Nota Dinas belum tersedia.',
         ]);
 
-        $berkasTerpilih = Berkas::whereIn('id_berkas', $validated['berkas_id'])
+        $validated = $request->validate([
+            'berkas_id' => ['required', 'array', 'min:1'],
+            'berkas_id.*' => ['exists:berkas,id'],
+        ]);
+
+        $berkasTerpilih = Berkas::whereIn('id', $validated['berkas_id'])
             ->where('status', '!=', 'sudah_nota_dinas')
             ->get();
         
@@ -31,9 +36,9 @@ class NotaDinasController extends Controller
             'status'  => 'draft',
         ]);
 
-        $notaDinas->berkas()->attach($berkasTerpilih->pluck('id_berkas'));
+        $notaDinas->berkas()->attach($berkasTerpilih->pluck('id'));
 
-        Berkas::whereIn('id_berkas', $berkasTerpilih->pluck('id_berkas'))
+        Berkas::whereIn('id', $berkasTerpilih->pluck('id'))
             ->update(['status' => 'sudah_nota_dinas']);
 
         return redirect()->route('berkas.pilih')

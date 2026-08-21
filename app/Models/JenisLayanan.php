@@ -9,10 +9,9 @@ use App\Models\Berkas;
 class JenisLayanan extends Model
 {
     protected $table = 'jenis_layanan';
-    protected $primaryKey = 'id_jenis_layanan';
 
     protected $fillable = [
-        'id_seksi',
+        'seksi_id',
         'nama_layanan',
     ];
 
@@ -20,8 +19,8 @@ class JenisLayanan extends Model
     {
         return $this->belongsTo(
             Seksi::class,
-            'id_seksi',
-            'id_seksi'
+            'seksi_id',
+            'id'
         );
     }
 
@@ -29,8 +28,8 @@ class JenisLayanan extends Model
     {
         return $this->hasMany(
             Berkas::class,
-            'id_jenis_layanan',
-            'id_jenis_layanan'
+            'jenis_layanan_id',
+            'id'
         );
     }
 }

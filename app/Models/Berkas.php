@@ -3,22 +3,29 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use App\Models\Seksi;
 use App\Models\JenisLayanan;
 
 class Berkas extends Model
 {
     protected $table = 'berkas';
-    protected $primaryKey = 'id_berkas';
+
+    public function getIdBerkasAttribute()
+    {
+        return $this->attributes['id'];
+    }
+
+    public function getNamaPemohonAttribute()
+    {
+        return $this->attributes['pemohon'];
+    }
 
     protected $fillable = [
-        'id_seksi',
-        'id_jenis_layanan',
+        'jenis_layanan_id',
         'no_berkas',
         'tanggal_pendaftaran',
         'no_hak',
         'nib_elektronik',
-        'nama_pemohon',
+        'pemohon',
         'tempat_lahir',
         'tanggal_lahir',
         'nomor_akta',
@@ -38,21 +45,12 @@ class Berkas extends Model
         'luas' => 'decimal:2',
     ];
 
-    public function seksi()
-    {
-        return $this->belongsTo(
-            Seksi::class,
-            'id_seksi',
-            'id_seksi'
-        );
-    }
-
     public function jenisLayanan()
     {
         return $this->belongsTo(
             JenisLayanan::class,
-            'id_jenis_layanan',
-            'id_jenis_layanan'
+            'jenis_layanan_id',
+            'id'
         );
     }
 }

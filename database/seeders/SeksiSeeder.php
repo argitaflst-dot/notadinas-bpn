@@ -21,7 +21,7 @@ class SeksiSeeder extends Seeder
         ];
 
         foreach ($seksi as $nama) {
-            Seksi::create([
+            Seksi::firstOrCreate([
                 'nama_seksi' => $nama
             ]);
         }
