@@ -1,8 +1,10 @@
 @extends('layouts.app')
+
 @section('title', 'Pilih Berkas')
+
 @section('content')
 
-<div class="bg-white rounded-lg shadow-sm p-6">
+    <div class="bg-white rounded-lg shadow-sm p-6">
 
         <div class="mb-6">
             <h1 class="text-lg font-bold text-gray-800">Pilih Berkas</h1>
@@ -89,45 +91,27 @@
                 </table>
             </div>
 
-             <div class="flex items-center justify-between mt-4">
+            <div class="flex items-center justify-between mt-4">
                 <p class="text-sm text-gray-500">
                     <span id="jumlahDipilih">0</span> berkas dipilih
                     <span class="text-xs text-gray-400 block">*Berkas status "Final" tidak dapat dipilih lagi</span>
                 </p>
                 <div class="flex gap-3">
                     <a href="{{ route('berkas.create') }}" class="px-4 py-2 text-sm rounded-md border border-gray-300 text-gray-600 hover:bg-gray-50 transition">Kembali</a>
-                    <button type="submit" class="px-5 py-2 text-sm rounded-md bg-[#003B7A] text-white font-medium hover:bg-[#002e5f] transition">Cetak Nota Dinas</button>
+                    <button
+                        type="button"
+                        disabled
+                        class="px-5 py-2 text-sm rounded-md bg-[#003B7A] text-white font-medium"
+                    >
+                        Cetak Nota Dinas
+                    </button>
                 </div>
             </div>
         </form>
 
     </div>
 
-    @endsection
-
-    @push('styles')
-<style>
-    .form-input {
-        width: 100%;
-        height: 42px;
-        border: 1px solid #cbd5e1 !important;
-        border-radius: 6px;
-        padding: 8px 12px;
-        font-size: 14px;
-        font-family: 'Inter', sans-serif;
-        background-color: #ffffff;
-        color: #1f2937;
-        outline: none;
-        box-sizing: border-box;
-        transition: all 0.15s ease;
-    }
-    .form-input:hover { border-color: #94a3b8 !important; }
-    .form-input:focus {
-        border-color: #003B7A !important;
-        box-shadow: 0 0 0 2px rgba(0, 59, 122, 0.12);
-    }
-</style>
-@endpush
+@endsection
 
 @push('scripts')
 <script>

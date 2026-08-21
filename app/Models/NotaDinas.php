@@ -32,7 +32,7 @@ class NotaDinas extends Model
             'nota_dinas_id',
             'berkas_id',
             'id',
-            'id_berkas'
+            'id'
         );
     }
 }

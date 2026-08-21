@@ -19,20 +19,110 @@
     <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
 
     <style>
-        html,
-        body {
-            font-family: 'Inter', sans-serif !important;
-        }
+    html,
+    body {
+        font-family: 'Inter', sans-serif !important;
+    }
 
-        header,
-        header *,
-        aside,
-        aside *,
-        main,
-        main * {
-            font-family: 'Inter', sans-serif !important;
-        }
-    </style>
+    header,
+    header *,
+    aside,
+    aside *,
+    main,
+    main * {
+        font-family: 'Inter', sans-serif !important;
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | INPUT (shared di semua halaman)
+    |--------------------------------------------------------------------------
+    */
+    .form-input {
+        width: 100%;
+        height: 42px;
+        border: 1px solid #cbd5e1 !important;
+        border-radius: 6px;
+        padding: 8px 12px;
+        font-size: 14px;
+        font-family: 'Inter', sans-serif;
+        background-color: #ffffff;
+        color: #1f2937;
+        outline: none;
+        box-sizing: border-box;
+        transition: all 0.15s ease;
+    }
+
+    .form-input:hover {
+        border-color: #94a3b8 !important;
+    }
+
+    .form-input:focus {
+        border-color: #003B7A !important;
+        box-shadow: 0 0 0 2px rgba(0, 59, 122, 0.12);
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | SEARCHABLE SELECT / TOM SELECT (shared)
+    |--------------------------------------------------------------------------
+    */
+    .searchable-select {
+        width: 100%;
+    }
+
+    .ts-wrapper {
+        width: 100%;
+        font-family: 'Inter', sans-serif;
+    }
+
+    .ts-control {
+        min-height: 42px !important;
+        border: 1px solid #d1d5db !important;
+        border-radius: 0.375rem !important;
+        padding: 8px 12px !important;
+        box-shadow: none !important;
+        font-size: 14px !important;
+        background: white !important;
+    }
+
+    .ts-control.focus {
+        border-color: #003B7A !important;
+        box-shadow: 0 0 0 2px rgba(0, 59, 122, 0.15) !important;
+    }
+
+    .ts-dropdown {
+        border: 1px solid #d1d5db !important;
+        border-radius: 0.375rem !important;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08) !important;
+        font-size: 14px !important;
+        overflow: hidden;
+    }
+
+    .ts-dropdown .option {
+        padding: 10px 12px !important;
+        cursor: pointer;
+    }
+
+    .ts-dropdown .option:hover,
+    .ts-dropdown .active {
+        background: #eff6ff !important;
+        color: #003B7A !important;
+    }
+
+    .ts-dropdown .create {
+        display: none !important;
+    }
+
+    .ts-control input {
+        font-size: 14px !important;
+    }
+
+    .ts-wrapper.disabled .ts-control {
+        background: #f3f4f6 !important;
+        cursor: not-allowed;
+    }
+        </style>
     @stack('styles')
 </head>
 
@@ -112,16 +202,17 @@
                         {{-- Pilih Berkas --}}
                         <li>
                             <a
-                                href="{{ Route::has('berkas.pilih') ? route('berkas.pilih') : '#' }}"
-                                class="flex items-center gap-3 px-4 py-3 rounded-xl text-base font-semibold text-white hover:bg-white/10 transition"
+                                href="{{ route('berkas.pilih') }}"
+                                class="flex items-center gap-3 px-4 py-3 rounded-xl text-base font-semibold transition 
+                                {{ request()->is('pilih-berkas') 
+                                    ? 'bg-white text-[#003B7A]' 
+                                    : 'text-white hover:bg-white/10' }}"
                             >
-
                                 <iconify-icon
                                     icon="mdi:file-check-outline"
                                     width="22"
                                     height="22"
                                 ></iconify-icon>
-
                                 Pilih Berkas
                             </a>
                         </li>

@@ -18,9 +18,57 @@ class BerkasController extends Controller
 
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'id_seksi' => ['required', 'exists:seksi,id_seksi'],
-            'id_jenis_layanan' => ['required', 'exists:jenis_layanan,id_jenis_layanan'],
+        $validated = $this->validateBerkas($request);
+
+        $jenisLayanan = JenisLayanan::whereKey($validated['id_jenis_layanan'])
+            ->where('seksi_id', $validated['id_seksi'])
+            ->firstOrFail();
+
+        Berkas::create($this->berkasAttributes($validated, $jenisLayanan));
+
+        return redirect()
+            ->route('berkas.create')
+            ->with('success', 'Berkas berhasil disimpan.');
+    }
+
+    public function edit($id)
+    {
+        $berkas = Berkas::with('jenisLayanan.seksi')->findOrFail($id);
+
+        if ($berkas->status === 'sudah_nota_dinas') {
+            abort(403, 'Berkas yang sudah final tidak dapat diedit.');
+        }
+
+        $seksiList = Seksi::orderBy('nama_seksi')->get();
+
+        return view('berkas.edit', compact('berkas', 'seksiList'));
+    }
+
+    public function update(Request $request, $id)
+    {
+        $berkas = Berkas::findOrFail($id);
+
+        if ($berkas->status === 'sudah_nota_dinas') {
+            abort(403, 'Berkas yang sudah final tidak dapat diedit.');
+        }
+
+        $validated = $this->validateBerkas($request);
+        $jenisLayanan = JenisLayanan::whereKey($validated['id_jenis_layanan'])
+            ->where('seksi_id', $validated['id_seksi'])
+            ->firstOrFail();
+
+        $berkas->update($this->berkasAttributes($validated, $jenisLayanan));
+
+        return redirect()
+            ->route('berkas.pilih')
+            ->with('success', 'Berkas berhasil diperbarui.');
+    }
+
+    private function validateBerkas(Request $request): array
+    {
+        return $request->validate([
+            'id_seksi' => ['required', 'exists:seksi,id'],
+            'id_jenis_layanan' => ['required', 'exists:jenis_layanan,id'],
 
             'no_berkas' => ['required', 'string', 'max:255'],
             'tanggal_pendaftaran' => ['required', 'date'],
@@ -38,22 +86,37 @@ class BerkasController extends Controller
             'desa_kelurahan' => ['nullable', 'string', 'max:255'],
             'kecamatan' => ['nullable', 'string', 'max:255'],
             'luas' => ['nullable', 'numeric'],
-            'nib_elektronik_akta' => ['nullable', 'string', 'max:255'],
+            'keterangan' => ['nullable', 'string'],
         ]);
+    }
 
-        Berkas::create($validated);
-
-        return redirect()
-            ->route('berkas.create')
-            ->with('success', 'Berkas berhasil disimpan.');
+    private function berkasAttributes(array $validated, JenisLayanan $jenisLayanan): array
+    {
+        return [
+            'jenis_layanan_id' => $jenisLayanan->id,
+            'no_berkas' => $validated['no_berkas'],
+            'tanggal_pendaftaran' => $validated['tanggal_pendaftaran'],
+            'no_hak' => $validated['no_hak'] ?? null,
+            'nib_elektronik' => $validated['nib_elektronik'] ?? null,
+            'pemohon' => $validated['nama_pemohon'],
+            'tempat_lahir' => $validated['tempat_lahir'] ?? null,
+            'tanggal_lahir' => $validated['tanggal_lahir'] ?? null,
+            'nomor_akta' => $validated['nomor_akta'] ?? null,
+            'tanggal_akta' => $validated['tanggal_akta'] ?? null,
+            'ppat' => $validated['ppat'] ?? null,
+            'desa_kelurahan' => $validated['desa_kelurahan'] ?? null,
+            'kecamatan' => $validated['kecamatan'] ?? null,
+            'luas' => $validated['luas'] ?? null,
+            'keterangan' => $validated['keterangan'] ?? null,
+        ];
     }
 
     public function getJenisLayanan($seksi)
     {
-        $jenisLayanan = JenisLayanan::where('id_seksi', $seksi)
+        $jenisLayanan = JenisLayanan::where('seksi_id', $seksi)
             ->orderBy('nama_layanan')
             ->get([
-                'id_jenis_layanan',
+                'id as id_jenis_layanan',
                 'nama_layanan',
             ]);
 
