@@ -4,8 +4,8 @@
 
 @section('content')
     @php
-        $seksiId = old('id_seksi', $berkas->jenisLayanan->seksi_id);
-        $jenisLayananId = old('id_jenis_layanan', $berkas->jenis_layanan_id);
+    $seksiId = old('id_seksi', $berkas->id_seksi);
+    $jenisLayananId = old('id_jenis_layanan', $berkas->id_jenis_layanan);
     @endphp
 
     <div class="bg-white rounded-lg shadow-sm p-6">
@@ -25,7 +25,7 @@
             </div>
         @endif
 
-        <form action="{{ route('berkas.update', $berkas->id) }}" method="POST">
+        <form action="{{ route('berkas.update', $berkas->id_berkas) }}" method="POST">
             @csrf
             @method('PUT')
 
@@ -89,7 +89,7 @@
                 </div>
                 <div class="mb-6">
                     <label for="nama_pemohon" class="block text-sm text-gray-600 mb-1">Nama Pemohon</label>
-                    <input type="text" id="nama_pemohon" name="nama_pemohon" value="{{ old('nama_pemohon', $berkas->pemohon) }}" required class="form-input">
+                    <input type="text" id="nama_pemohon" name="nama_pemohon" value="{{ old('nama_pemohon', $berkas->nama_pemohon) }}" required class="form-input">
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>

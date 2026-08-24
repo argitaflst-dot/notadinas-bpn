@@ -9,23 +9,26 @@ class Berkas extends Model
 {
     protected $table = 'berkas';
 
+    protected $primaryKey = 'id_berkas';
+
     public function getIdBerkasAttribute()
     {
-        return $this->attributes['id'];
+        return $this->attributes['id_berkas'];
     }
 
     public function getNamaPemohonAttribute()
     {
-        return $this->attributes['pemohon'];
+        return $this->attributes['nama_pemohon'];
     }
 
     protected $fillable = [
-        'jenis_layanan_id',
+        'id_seksi',
+        'id_jenis_layanan',
         'no_berkas',
         'tanggal_pendaftaran',
         'no_hak',
         'nib_elektronik',
-        'pemohon',
+        'nama_pemohon',
         'tempat_lahir',
         'tanggal_lahir',
         'nomor_akta',
@@ -49,8 +52,17 @@ class Berkas extends Model
     {
         return $this->belongsTo(
             JenisLayanan::class,
-            'jenis_layanan_id',
-            'id'
+            'id_jenis_layanan',
+            'id_jenis_layanan'
+        );
+    }
+
+    public function seksi()
+    {
+        return $this->belongsTo(
+            Seksi::class,
+            'id_seksi',
+            'id_seksi'
         );
     }
 }

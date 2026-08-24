@@ -30,9 +30,109 @@
             </div>
         @endif
 
-        <div class="flex items-center justify-between mb-4">
-            <input type="text" id="searchBerkas" placeholder="Search..." class="form-input max-w-xs">
+        <div class="flex items-center gap-3 mb-4">
+
+    {{-- SEARCH --}}
+    <div class="relative flex-1">
+        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+            <iconify-icon
+                icon="material-symbols:search"
+                width="20"
+                height="20">
+            </iconify-icon>
+        </span>
+
+        <input
+            type="text"
+            id="searchBerkas"
+            placeholder="Search..."
+            class="w-full h-10 pl-10 pr-4 rounded-md border border-gray-300
+                   text-sm text-gray-700 placeholder-gray-400
+                   focus:outline-none focus:ring-1 focus:ring-[#003B7A]
+                   focus:border-[#003B7A]"
+        >
+    </div>
+
+    {{-- TOMBOL FILTER --}}
+    <button
+        type="button"
+        id="btnFilter"
+        class="h-10 px-4 flex items-center gap-2 rounded-md
+               border border-gray-300 bg-white text-gray-600 text-sm
+               hover:bg-gray-50 transition"
+    >
+        <iconify-icon
+            icon="material-symbols:filter-list"
+            width="20"
+            height="20">
+        </iconify-icon>
+
+        <span>Filter</span>
+    </button>
+
+</div>
+
+{{-- PANEL FILTER --}}
+<div
+    id="filterPanel"
+    class="hidden mb-4 p-4 rounded-md border border-gray-200 bg-gray-50"
+>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+        {{-- FILTER STATUS --}}
+        <div>
+            <label class="block text-xs font-medium text-gray-600 mb-1">
+                Status
+            </label>
+
+            <select
+                id="filterStatus"
+                class="w-full h-10 px-3 rounded-md border border-gray-300
+                       bg-white text-sm text-gray-700
+                       focus:outline-none focus:ring-1 focus:ring-[#003B7A]"
+            >
+                <option value="">Semua Status</option>
+                <option value="belum">Belum</option>
+                <option value="final">Final</option>
+            </select>
         </div>
+
+        {{-- FILTER JENIS LAYANAN --}}
+        <div>
+            <label class="block text-xs font-medium text-gray-600 mb-1">
+                Jenis Layanan
+            </label>
+
+            <select
+                id="filterJenisLayanan"
+                class="w-full h-10 px-3 rounded-md border border-gray-300
+                       bg-white text-sm text-gray-700
+                       focus:outline-none focus:ring-1 focus:ring-[#003B7A]"
+            >
+                <option value="">Semua Jenis Layanan</option>
+
+                @foreach ($berkasList->pluck('jenisLayanan.nama_layanan')->filter()->unique()->sort() as $jenis)
+                    <option value="{{ strtolower($jenis) }}">
+                        {{ $jenis }}
+                    </option>
+                @endforeach
+
+            </select>
+        </div>
+
+    </div>
+
+    {{-- RESET FILTER --}}
+    <div class="flex justify-end mt-3">
+            <button
+                type="button"
+                id="resetFilter"
+                class="text-sm text-gray-500 hover:text-[#003B7A]"
+            >
+                Reset Filter
+            </button>
+        </div>
+    </div>
 
         <form action="{{ route('nota-dinas.store') }}" method="POST">
             @csrf
@@ -116,21 +216,170 @@
 @push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function () {
+
     const counter = document.getElementById('jumlahDipilih');
+
     const rows = document.querySelectorAll('#tabelBerkas tbody tr');
 
+    const searchInput = document.getElementById('searchBerkas');
+
+    const btnFilter = document.getElementById('btnFilter');
+
+    const filterPanel = document.getElementById('filterPanel');
+
+    const filterStatus = document.getElementById('filterStatus');
+
+    const filterJenisLayanan = document.getElementById('filterJenisLayanan');
+
+    const resetFilter = document.getElementById('resetFilter');
+
+
+    // ==========================================
+    // HITUNG BERKAS YANG DIPILIH
+    // ==========================================
+
     document.querySelectorAll('.berkas-checkbox').forEach(cb => {
+
         cb.addEventListener('change', () => {
-            counter.textContent = document.querySelectorAll('.berkas-checkbox:checked').length;
+
+            counter.textContent =
+                document.querySelectorAll(
+                    '.berkas-checkbox:checked'
+                ).length;
+
         });
+
     });
 
-    document.getElementById('searchBerkas').addEventListener('input', function () {
-        const keyword = this.value.toLowerCase();
-        rows.forEach(row => {
-            row.style.display = row.textContent.toLowerCase().includes(keyword) ? '' : 'none';
-        });
+
+    // ==========================================
+    // BUKA / TUTUP FILTER
+    // ==========================================
+
+    btnFilter.addEventListener('click', function () {
+
+        filterPanel.classList.toggle('hidden');
+
     });
+
+
+    // ==========================================
+    // FUNGSI FILTER
+    // ==========================================
+
+    function applyFilter() {
+
+        const keyword =
+            searchInput.value.toLowerCase().trim();
+
+        const status =
+            filterStatus.value.toLowerCase();
+
+        const jenisLayanan =
+            filterJenisLayanan.value.toLowerCase();
+
+
+        rows.forEach(row => {
+
+            const rowText =
+                row.textContent.toLowerCase();
+
+
+            // CARI DENGAN SEARCH
+            const cocokSearch =
+                rowText.includes(keyword);
+
+
+            // FILTER JENIS LAYANAN
+            const cocokJenis =
+                jenisLayanan === '' ||
+                rowText.includes(jenisLayanan);
+
+
+            // FILTER STATUS
+            let cocokStatus = true;
+
+            if (status === 'belum') {
+
+                cocokStatus =
+                    rowText.includes('belum');
+
+            }
+
+            if (status === 'final') {
+
+                cocokStatus =
+                    rowText.includes('final');
+
+            }
+
+
+            // TAMPILKAN / SEMBUNYIKAN ROW
+            if (
+                cocokSearch &&
+                cocokJenis &&
+                cocokStatus
+            ) {
+
+                row.style.display = '';
+
+            } else {
+
+                row.style.display = 'none';
+
+            }
+
+        });
+
+    }
+
+
+    // ==========================================
+    // SEARCH
+    // ==========================================
+
+    searchInput.addEventListener(
+        'input',
+        applyFilter
+    );
+
+
+    // ==========================================
+    // FILTER STATUS
+    // ==========================================
+
+    filterStatus.addEventListener(
+        'change',
+        applyFilter
+    );
+
+
+    // ==========================================
+    // FILTER JENIS LAYANAN
+    // ==========================================
+
+    filterJenisLayanan.addEventListener(
+        'change',
+        applyFilter
+    );
+
+
+    // ==========================================
+    // RESET FILTER
+    // ==========================================
+
+    resetFilter.addEventListener('click', function () {
+
+        searchInput.value = '';
+
+        filterStatus.value = '';
+
+        filterJenisLayanan.value = '';
+
+        applyFilter();
+
+    });
+
 });
 </script>
 @endpush

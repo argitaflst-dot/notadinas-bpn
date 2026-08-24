@@ -10,21 +10,23 @@ class Seksi extends Model
 {
     protected $table = 'seksi';
 
-    public function getIdSeksiAttribute()
-    {
-        return $this->attributes['id'];
-    }
+    protected $primaryKey = 'id_seksi';
 
     protected $fillable = [
         'nama_seksi',
     ];
 
+    public function getIdSeksiAttribute()
+    {
+        return $this->attributes['id_seksi'];
+    }
+
     public function jenisLayanan()
     {
         return $this->hasMany(
             JenisLayanan::class,
-            'seksi_id',
-            'id'
+            'id_seksi',
+            'id_seksi'
         );
     }
 
@@ -32,8 +34,8 @@ class Seksi extends Model
     {
         return $this->hasMany(
             Berkas::class,
-            'seksi_id',
-            'id'
+            'id_seksi',
+            'id_seksi'
         );
     }
 }

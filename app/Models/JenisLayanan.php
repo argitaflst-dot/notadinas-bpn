@@ -10,8 +10,10 @@ class JenisLayanan extends Model
 {
     protected $table = 'jenis_layanan';
 
+    protected $primaryKey = 'id_jenis_layanan';
+
     protected $fillable = [
-        'seksi_id',
+        'id_seksi',
         'nama_layanan',
     ];
 
@@ -19,8 +21,8 @@ class JenisLayanan extends Model
     {
         return $this->belongsTo(
             Seksi::class,
-            'seksi_id',
-            'id'
+            'id_seksi',
+            'id_seksi'
         );
     }
 
@@ -28,8 +30,8 @@ class JenisLayanan extends Model
     {
         return $this->hasMany(
             Berkas::class,
-            'jenis_layanan_id',
-            'id'
+            'id_jenis_layanan',
+            'id_jenis_layanan'
         );
     }
 }

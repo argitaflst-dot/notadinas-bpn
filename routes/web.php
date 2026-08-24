@@ -5,7 +5,9 @@ use App\Http\Controllers\NotaDinasController;
 use Illuminate\Support\Facades\Route;
 
 // Halaman utama tidak perlu diberi nama jika fungsinya hanya mengalihkan/menampilkan hal yang sama
-Route::get('/', [BerkasController::class, 'create']);
+Route::get('/', function () {
+    return redirect()->route('berkas.create');
+});
 
 Route::get('/input-berkas', [BerkasController::class, 'create'])
     ->name('berkas.create');
