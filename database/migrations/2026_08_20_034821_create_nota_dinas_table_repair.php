@@ -17,7 +17,6 @@ return new class extends Migration
                 $table->string('dari');
                 $table->date('tanggal');
                 $table->text('keterangan')->nullable();
-                $table->string('status')->default('draft');
                 $table->timestamps();
             });
         }
