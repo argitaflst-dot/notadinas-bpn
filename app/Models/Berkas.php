@@ -3,23 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use App\Models\JenisLayanan;
 
 class Berkas extends Model
 {
     protected $table = 'berkas';
 
     protected $primaryKey = 'id_berkas';
-
-    public function getIdBerkasAttribute()
-    {
-        return $this->attributes['id_berkas'];
-    }
-
-    public function getNamaPemohonAttribute()
-    {
-        return $this->attributes['nama_pemohon'];
-    }
 
     protected $fillable = [
         'id_seksi',
@@ -48,6 +37,12 @@ class Berkas extends Model
         'luas' => 'decimal:2',
     ];
 
+    /*
+    |--------------------------------------------------------------------------
+    | RELASI KE JENIS LAYANAN
+    |--------------------------------------------------------------------------
+    */
+
     public function jenisLayanan()
     {
         return $this->belongsTo(
@@ -56,6 +51,12 @@ class Berkas extends Model
             'id_jenis_layanan'
         );
     }
+
+    /*
+    |--------------------------------------------------------------------------
+    | RELASI KE SEKSI
+    |--------------------------------------------------------------------------
+    */
 
     public function seksi()
     {

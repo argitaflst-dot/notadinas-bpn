@@ -50,7 +50,7 @@ class JenisLayananSeeder extends Seeder
 
         foreach ($layananSeksi1 as $nama) {
             JenisLayanan::firstOrCreate([
-                'seksi_id' => $seksi1->id,
+                'id_seksi' => $seksi1->id_seksi,
                 'nama_layanan' => $nama,
             ]);
         }
@@ -68,7 +68,7 @@ class JenisLayananSeeder extends Seeder
 
         foreach ($layananSeksi2 as $nama) {
             JenisLayanan::firstOrCreate([
-                'seksi_id' => $seksi2->id,
+                'id_seksi' => $seksi2->id_seksi,
                 'nama_layanan' => $nama,
             ]);
         }
@@ -83,7 +83,7 @@ class JenisLayananSeeder extends Seeder
 
         foreach ($layananSeksi3 as $nama) {
             JenisLayanan::firstOrCreate([
-                'seksi_id' => $seksi3->id,
+                'id_seksi' => $seksi3->id_seksi,
                 'nama_layanan' => $nama,
             ]);
         }
@@ -129,7 +129,7 @@ class JenisLayananSeeder extends Seeder
 
         foreach ($layananSeksi4 as $nama) {
             JenisLayanan::firstOrCreate([
-                'seksi_id' => $seksi4->id,
+                'id_seksi' => $seksi4->id_seksi,
                 'nama_layanan' => $nama,
             ]);
         }

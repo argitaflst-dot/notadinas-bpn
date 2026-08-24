@@ -14,12 +14,9 @@ class Seksi extends Model
 
     protected $fillable = [
         'nama_seksi',
+        'nama_koordinator',
+        'nip_koordinator',
     ];
-
-    public function getIdSeksiAttribute()
-    {
-        return $this->attributes['id_seksi'];
-    }
 
     public function jenisLayanan()
     {
