@@ -6,6 +6,7 @@ use App\Models\NotaDinas;
 use App\Models\Berkas;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class NotaDinasController extends Controller
 {
@@ -102,14 +103,6 @@ class NotaDinasController extends Controller
         /*
         |--------------------------------------------------------------------------
         | NOMOR NOTA DINAS
-        |
-        | Nomor dibuat berurutan berdasarkan tahun.
-        |
-        | Contoh:
-        | 289/2026
-        | 290/2026
-        | 291/2026
-        | 292/2026
         |--------------------------------------------------------------------------
         */
 
@@ -128,15 +121,6 @@ class NotaDinasController extends Controller
         |--------------------------------------------------------------------------
         | JABATAN / DARI
         |--------------------------------------------------------------------------
-        |
-        | Nama seksi dari database:
-        |
-        | Pemeliharaan Hak Tanah, Ruang dan Pembinaan PPAT
-        |
-        | Akan ditampilkan:
-        |
-        | KKS Pemeliharaan Hak Tanah, Ruang dan Pembinaan PPAT
-        |--------------------------------------------------------------------------
         */
 
         $jabatan = 'KKS ' . $seksi->nama_seksi;
@@ -151,26 +135,17 @@ class NotaDinasController extends Controller
         $notaDinas = DB::transaction(function () use (
             $nomorBaru,
             $tahunSekarang,
-            $seksi,
             $berkasTerpilih,
             $jabatan
         ) {
 
             $nota = NotaDinas::create([
                 'nomor' => $nomorBaru,
-
                 'tahun' => $tahunSekarang,
 
-                /*
-                 * Kepada tetap ditujukan kepada
-                 * Kepala Seksi Penetapan Hak dan Pendaftaran.
-                 */
                 'kepada' =>
                     'Kepala Seksi Penetapan Hak dan Pendaftaran',
 
-                /*
-                 * Dari mengikuti seksi yang dipilih.
-                 */
                 'dari' => $jabatan,
 
                 'tanggal' => now(),
@@ -186,7 +161,9 @@ class NotaDinasController extends Controller
             */
 
             $nota->berkas()->attach(
-                $berkasTerpilih->pluck('id_berkas')->toArray()
+                $berkasTerpilih
+                    ->pluck('id_berkas')
+                    ->toArray()
             );
 
 
@@ -201,17 +178,17 @@ class NotaDinasController extends Controller
         */
 
         return redirect()->route(
-        'nota-dinas.preview',
-        [
-            'notaDinas' => $notaDinas->getKey()
-        ]
-    );
+            'nota-dinas.preview',
+            [
+                'notaDinas' => $notaDinas->getKey()
+            ]
+        );
     }
 
 
     /*
     |--------------------------------------------------------------------------
-    | PREVIEW
+    | PREVIEW NOTA DINAS
     |--------------------------------------------------------------------------
     */
 
@@ -280,96 +257,195 @@ class NotaDinasController extends Controller
 
     /*
     |--------------------------------------------------------------------------
-    | CETAK
+    | CETAK / PREVIEW PDF
     |--------------------------------------------------------------------------
     */
 
-public function cetak(Request $request, NotaDinas $notaDinas)
-{
-    /*
-    |--------------------------------------------------------------------------
-    | LOAD DATA
-    |--------------------------------------------------------------------------
-    */
+    public function cetak(Request $request, NotaDinas $notaDinas)
+    {
+        /*
+        |--------------------------------------------------------------------------
+        | LOAD DATA
+        |--------------------------------------------------------------------------
+        */
 
-    $notaDinas->load([
-        'berkas.seksi',
-        'berkas.jenisLayanan'
-    ]);
+        $notaDinas->load([
+            'berkas.seksi',
+            'berkas.jenisLayanan'
+        ]);
 
-    /*
-    |--------------------------------------------------------------------------
-    | BELUM FINAL
-    |--------------------------------------------------------------------------
-    |
-    | Method ini hanya mengembalikan halaman preview
-    | dan memerintahkan browser membuka print dialog.
-    |
-    */
 
-    return redirect()
-        ->route('nota-dinas.preview', [
-            'notaDinas' => $notaDinas->getKey()
-        ])
-        ->with('print', true);
-}
+        /*
+        |--------------------------------------------------------------------------
+        | AMBIL SEKSI
+        |--------------------------------------------------------------------------
+        */
 
-/*
-|--------------------------------------------------------------------------
-| FINALISASI NOTA DINAS
-|--------------------------------------------------------------------------
-*/
+        $seksi = $notaDinas
+            ->berkas
+            ->first()
+            ?->seksi;
 
-public function finalisasi(Request $request, NotaDinas $notaDinas)
-{
-    /*
-    |--------------------------------------------------------------------------
-    | Pastikan masih draft
-    |--------------------------------------------------------------------------
-    */
 
-    if ($notaDinas->status === 'final') {
-        return redirect()
-            ->route('berkas.pilih')
-            ->with('success', 'Nota Dinas sudah final.');
+        if (!$seksi) {
+            return redirect()
+                ->route('berkas.pilih')
+                ->withErrors([
+                    'berkas_id' =>
+                        'Seksi dari Nota Dinas tidak ditemukan.'
+                ]);
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | JABATAN KOORDINATOR
+        |--------------------------------------------------------------------------
+        */
+
+        $jabatanKoordinator =
+            'KKS ' . $seksi->nama_seksi;
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | GENERATE PDF
+        |--------------------------------------------------------------------------
+        */
+
+        $pdf = Pdf::loadView(
+            'nota-dinas.pdf',
+            compact(
+                'notaDinas',
+                'seksi',
+                'jabatanKoordinator'
+            )
+        );
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | UKURAN KERTAS
+        |--------------------------------------------------------------------------
+        */
+
+        $pdf->setPaper('a4', 'landscape');
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | NAMA FILE PDF OTOMATIS
+        |--------------------------------------------------------------------------
+        |
+        | Contoh:
+        |
+        | Nota-Dinas-No-4-Tahun-2026.pdf
+        |
+        | Jika nomor berubah menjadi 5:
+        |
+        | Nota-Dinas-No-5-Tahun-2026.pdf
+        |
+        |--------------------------------------------------------------------------
+        */
+
+        $namaFile =
+            'Nota-Dinas-No-' .
+            $notaDinas->nomor .
+            '-Tahun-' .
+            $notaDinas->tahun .
+            '.pdf';
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | TAMPILKAN PDF DI BROWSER
+        |--------------------------------------------------------------------------
+        |
+        | stream() = membuka PDF di browser terlebih dahulu.
+        |
+        | Pengguna masih bisa:
+        |
+        | - melihat PDF
+        | - klik tombol download
+        | - Ctrl + S
+        | - mencetak
+        |
+        |--------------------------------------------------------------------------
+        */
+
+        return $pdf->stream($namaFile);
     }
 
 
     /*
     |--------------------------------------------------------------------------
-    | FINALISASI
+    | FINALISASI NOTA DINAS
     |--------------------------------------------------------------------------
     */
 
-    DB::transaction(function () use ($notaDinas) {
+    public function finalisasi(
+        Request $request,
+        NotaDinas $notaDinas
+    ) {
+        /*
+        |--------------------------------------------------------------------------
+        | PASTIKAN MASIH DRAFT
+        |--------------------------------------------------------------------------
+        */
 
-        // Semua berkas yang ada di nota menjadi final
-        $notaDinas->berkas()->update([
-            'status' => 'sudah_nota_dinas'
-        ]);
-
-        // Nota Dinas menjadi final
-        $notaDinas->update([
-            'status' => 'final'
-        ]);
-    });
+        if ($notaDinas->status === 'final') {
+            return redirect()
+                ->route('berkas.pilih')
+                ->with(
+                    'success',
+                    'Nota Dinas sudah final.'
+                );
+        }
 
 
-    /*
-    |--------------------------------------------------------------------------
-    | KEMBALI
-    |--------------------------------------------------------------------------
-    */
+        /*
+        |--------------------------------------------------------------------------
+        | FINALISASI
+        |--------------------------------------------------------------------------
+        */
 
-    return redirect()
-        ->route('berkas.pilih')
-        ->with(
-            'success',
-            'Nota Dinas No. ' .
-            $notaDinas->nomor .
-            ' Tahun ' .
-            $notaDinas->tahun .
-            ' berhasil difinalkan.'
-        );
-}
+        DB::transaction(function () use ($notaDinas) {
+
+            /*
+            | Semua berkas yang ada di nota
+            | menjadi sudah_nota_dinas
+            */
+
+            $notaDinas->berkas()->update([
+                'status' => 'sudah_nota_dinas'
+            ]);
+
+
+            /*
+            | Nota Dinas menjadi final
+            */
+
+            $notaDinas->update([
+                'status' => 'final'
+            ]);
+        });
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | KEMBALI KE HALAMAN PILIH BERKAS
+        |--------------------------------------------------------------------------
+        */
+
+        return redirect()
+            ->route('berkas.pilih')
+            ->with(
+                'success',
+                'Nota Dinas No. ' .
+                $notaDinas->nomor .
+                ' Tahun ' .
+                $notaDinas->tahun .
+                ' berhasil difinalkan.'
+            );
+    }
 }
