@@ -337,8 +337,9 @@
         @csrf
 
         <button
-            type="submit"
+            type="button"
             class="btn-print"
+            onclick="window.print()"
         >
             Cetak
         </button>
@@ -1140,70 +1141,7 @@
 }
 
 </style>
-
-
-{{-- =========================================================
-     AUTO PRINT + NAMA FILE
-========================================================== --}}
-
-@if(session('print'))
-
 <script>
-
-window.addEventListener('load', function () {
-
-    /*
-    |--------------------------------------------------------------------------
-    | SIMPAN JUDUL ASLI
-    |--------------------------------------------------------------------------
-    */
-
-    const originalTitle = document.title;
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | NAMA FILE PDF
-    |--------------------------------------------------------------------------
-    |
-    | Browser biasanya menggunakan document.title
-    | sebagai nama file ketika memilih Save to PDF.
-    |
-    */
-
-    document.title =
-        'Nota Dinas No. {{ $notaDinas->nomor }} Tahun {{ $notaDinas->tahun }}';
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | BUKA PRINT DIALOG
-    |--------------------------------------------------------------------------
-    */
-
-    setTimeout(function () {
-
-        window.print();
-
-    }, 500);
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | KEMBALIKAN JUDUL SETELAH PRINT
-    |--------------------------------------------------------------------------
-    */
-
-    window.onafterprint = function () {
-
-        document.title = originalTitle;
-
-    };
-
-});
-
+    document.title = "Nota Dinas No. {{ $notaDinas->nomor }} Tahun {{ $notaDinas->tahun }}";
 </script>
-
-@endif
-
 @endsection
