@@ -119,11 +119,17 @@
                             </td>
 
                             <td class="px-4 py-3 text-center">
-                                <a href="{{ route('nota-dinas.preview', $nota) }}?print=1"
-                                   target="_blank"
-                                   title="Unduh / cetak PDF"
-                                   class="text-black-600 hover:text-black-800 inline-flex">
-                                    <iconify-icon icon="griddy-icons:pdf-download" width="22" height="22"></iconify-icon>
+                                <a href="{{ route('nota-dinas.pdf', $nota) }}"
+                                target="_blank"
+                                title="Unduh / cetak PDF"
+                                class="text-black-600 hover:text-black-800 inline-flex">
+
+                                    <iconify-icon
+                                        icon="griddy-icons:pdf-download"
+                                        width="22"
+                                        height="22">
+                                    </iconify-icon>
+
                                 </a>
                             </td>
 
