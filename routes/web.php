@@ -5,7 +5,9 @@ use App\Http\Controllers\NotaDinasController;
 use Illuminate\Support\Facades\Route;
 
 // Halaman utama tidak perlu diberi nama jika fungsinya hanya mengalihkan/menampilkan hal yang sama
-Route::get('/', [BerkasController::class, 'create']);
+Route::get('/', function () {
+    return redirect()->route('berkas.create');
+});
 
 Route::get('/input-berkas', [BerkasController::class, 'create'])
     ->name('berkas.create');
@@ -27,4 +29,14 @@ Route::get('/jenis-layanan/{seksi}', [BerkasController::class, 'getJenisLayanan'
 Route::get('/pilih-berkas', [BerkasController::class, 'pilih'])->name('berkas.pilih');
 Route::post('/cetak-nota-dinas', [NotaDinasController::class, 'store'])->name('nota-dinas.store');
 
-// Nanti kita tambahkan route lain di sini
+Route::get('/nota-dinas/{notaDinas}/preview', 
+    [NotaDinasController::class, 'preview']
+)->name('nota-dinas.preview');
+Route::post(
+    '/nota-dinas/{notaDinas}/cetak',
+    [NotaDinasController::class, 'cetak']
+)->name('nota-dinas.cetak');
+Route::post(
+    '/nota-dinas/{notaDinas}/finalisasi',
+    [NotaDinasController::class, 'finalisasi']
+)->name('nota-dinas.finalisasi');
