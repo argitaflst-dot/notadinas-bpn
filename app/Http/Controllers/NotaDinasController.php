@@ -448,4 +448,23 @@ class NotaDinasController extends Controller
                 ' berhasil difinalkan.'
             );
     }
+
+    /*
+|--------------------------------------------------------------------------
+| RIWAYAT NOTA DINAS
+|--------------------------------------------------------------------------
+*/
+
+public function riwayat()
+{
+    $notaDinas = NotaDinas::with([
+        'berkas.seksi',
+        'berkas.jenisLayanan'
+    ])
+        ->orderByDesc('tahun')
+        ->orderByDesc('nomor')
+        ->get();
+
+    return view('nota-dinas.riwayat', compact('notaDinas'));
+}
 }

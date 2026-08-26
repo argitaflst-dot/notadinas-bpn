@@ -337,12 +337,19 @@
         @csrf
 
         <button
-            type="button"
-            class="btn-print"
-            onclick="window.print()"
-        >
-            Cetak
-        </button>
+    type="button"
+    class="btn-print"
+    onclick="
+        const oldTitle = document.title;
+        document.title = 'Nota Dinas No. {{ $notaDinas->nomor }} Tahun {{ $notaDinas->tahun }}';
+        window.print();
+        setTimeout(() => {
+            document.title = oldTitle;
+        }, 1000);
+    "
+>
+    Cetak
+</button>
 
     </form>
 
@@ -1142,13 +1149,4 @@
 
 </style>
 
-
-{{-- =========================================================
-     AUTO PRINT + NAMA FILE
-
-@if(session('print') || request()->query('print')) 
-
-<script>
-    document.title = "Nota Dinas No. {{ $notaDinas->nomor }} Tahun {{ $notaDinas->tahun }}";
-</script>
 @endsection

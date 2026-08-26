@@ -14,9 +14,12 @@ class RiwayatController extends Controller
             ->withCount('berkas')
             ->orderByDesc('tanggal')
             ->get();
-        
+
         $seksiList = Seksi::orderBy('nama_seksi')->get();
 
-        return view('nota-dinas.riwayat', compact('notaDinasList', 'seksiList'));
+        return view('nota-dinas.riwayat', compact(
+            'notaDinasList',
+            'seksiList'
+        ));
     }
 }
