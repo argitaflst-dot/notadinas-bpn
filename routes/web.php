@@ -4,7 +4,6 @@ use App\Http\Controllers\BerkasController;
 use App\Http\Controllers\NotaDinasController;
 use App\Http\Controllers\RiwayatController; 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\RiwayatController;
 
 // Halaman utama tidak perlu diberi nama jika fungsinya hanya mengalihkan/menampilkan hal yang sama
 Route::get('/', function () {
