@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\BerkasController;
 use App\Http\Controllers\NotaDinasController;
+use App\Http\Controllers\RiwayatController; 
 use Illuminate\Support\Facades\Route;
 
 // Halaman utama tidak perlu diberi nama jika fungsinya hanya mengalihkan/menampilkan hal yang sama
@@ -40,3 +41,6 @@ Route::post(
     '/nota-dinas/{notaDinas}/finalisasi',
     [NotaDinasController::class, 'finalisasi']
 )->name('nota-dinas.finalisasi');
+
+Route::get('/riwayat', [RiwayatController::class, 'index'])
+    ->name('berkas.riwayat');
