@@ -1141,6 +1141,13 @@
 }
 
 </style>
+
+
+{{-- =========================================================
+     AUTO PRINT + NAMA FILE
+
+@if(session('print') || request()->query('print')) 
+
 <script>
     document.title = "Nota Dinas No. {{ $notaDinas->nomor }} Tahun {{ $notaDinas->tahun }}";
 </script>
