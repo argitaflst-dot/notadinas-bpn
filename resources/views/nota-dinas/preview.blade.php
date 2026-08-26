@@ -1146,7 +1146,7 @@
      AUTO PRINT + NAMA FILE
 ========================================================== --}}
 
-@if(session('print'))
+@if(session('print') || request()->query('print')) 
 
 <script>
 

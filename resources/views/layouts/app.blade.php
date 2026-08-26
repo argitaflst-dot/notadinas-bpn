@@ -222,7 +222,10 @@
                         <li>
                             <a
                                 href="{{ Route::has('berkas.riwayat') ? route('berkas.riwayat') : '#' }}"
-                                class="flex items-center gap-3 px-4 py-3 rounded-xl text-base font-semibold text-white hover:bg-white/10 transition"
+                                class="flex items-center gap-3 px-4 py-3 rounded-xl text-base font-semibold transition
+                                {{ request()->is('riwayat')
+                                 ? 'bg-white text-[#003B7A]'
+                                 : 'text-white hover:bg-white/10' }}"
                             >
 
                                 <iconify-icon
