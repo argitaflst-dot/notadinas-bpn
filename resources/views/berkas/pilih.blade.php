@@ -561,10 +561,6 @@
 document.addEventListener('DOMContentLoaded', function () {
 
 
-    // ==========================================
-    // ELEMENT
-    // ==========================================
-
     const counter =
         document.getElementById('jumlahDipilih');
 
@@ -598,9 +594,6 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('resetFilter');
 
 
-    // ==========================================
-    // UPDATE TOMBOL CETAK
-    // ==========================================
 
     function updateTombolCetak() {
 
@@ -610,13 +603,8 @@ document.addEventListener('DOMContentLoaded', function () {
             ).length;
 
 
-        // Update counter
         counter.textContent = jumlah;
 
-
-        // ===============================
-        // ADA YANG DIPILIH
-        // ===============================
 
         if (jumlah > 0) {
 
@@ -638,10 +626,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
         }
 
-
-        // ===============================
-        // TIDAK ADA YANG DIPILIH
-        // ===============================
 
         else {
 
@@ -666,10 +650,6 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
 
-    // ==========================================
-    // CHECKBOX
-    // ==========================================
-
     document
         .querySelectorAll('.berkas-checkbox')
         .forEach(function (checkbox) {
@@ -681,10 +661,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
         });
 
-
-    // ==========================================
-    // BUKA / TUTUP FILTER
-    // ==========================================
 
     btnFilter.addEventListener(
         'click',
@@ -698,16 +674,8 @@ document.addEventListener('DOMContentLoaded', function () {
     );
 
 
-    // ==========================================
-    // APPLY FILTER
-    // ==========================================
-
     function applyFilter() {
 
-
-        // ===============================
-        // NILAI FILTER
-        // ===============================
 
         const keyword =
             searchInput.value
@@ -733,16 +701,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 .trim();
 
 
-        // ===============================
-        // LOOP ROW
-        // ===============================
-
         rows.forEach(function (row) {
 
-
-            // ===============================
-            // DATA ROW
-            // ===============================
 
             const rowText =
                 row.textContent
@@ -767,45 +727,25 @@ document.addEventListener('DOMContentLoaded', function () {
                     .trim();
 
 
-            // ===============================
-            // SEARCH
-            // ===============================
-
             const cocokSearch =
                 keyword === '' ||
                 rowText.includes(keyword);
 
-
-            // ===============================
-            // FILTER SEKSI
-            // ===============================
 
             const cocokSeksi =
                 seksi === '' ||
                 rowSeksi === seksi;
 
 
-            // ===============================
-            // FILTER JENIS LAYANAN
-            // ===============================
-
             const cocokJenis =
                 jenisLayanan === '' ||
                 rowJenis === jenisLayanan;
 
 
-            // ===============================
-            // FILTER STATUS
-            // ===============================
-
             const cocokStatus =
                 status === '' ||
                 rowStatus === status;
 
-
-            // ===============================
-            // HASIL AKHIR
-            // ===============================
 
             if (
                 cocokSearch &&
@@ -829,19 +769,11 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
 
-    // ==========================================
-    // SEARCH
-    // ==========================================
-
     searchInput.addEventListener(
         'input',
         applyFilter
     );
 
-
-    // ==========================================
-    // FILTER STATUS
-    // ==========================================
 
     filterStatus.addEventListener(
         'change',
@@ -849,29 +781,17 @@ document.addEventListener('DOMContentLoaded', function () {
     );
 
 
-    // ==========================================
-    // FILTER SEKSI
-    // ==========================================
-
     filterSeksi.addEventListener(
         'change',
         applyFilter
     );
 
 
-    // ==========================================
-    // FILTER JENIS LAYANAN
-    // ==========================================
-
     filterJenisLayanan.addEventListener(
         'change',
         applyFilter
     );
 
-
-    // ==========================================
-    // RESET FILTER
-    // ==========================================
 
     resetFilter.addEventListener(
         'click',
@@ -892,10 +812,6 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     );
 
-
-    // ==========================================
-    // INITIAL
-    // ==========================================
 
     updateTombolCetak();
 

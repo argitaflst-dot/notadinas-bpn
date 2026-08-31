@@ -20,7 +20,7 @@ class BerkasController extends Controller
     {
         $validated = $this->validateBerkas($request);
 
-        // Cek apakah nomor berkas sudah digunakan
+        
         if (Berkas::where('no_berkas', $validated['no_berkas'])->exists()) {
             return back()
                 ->withInput()

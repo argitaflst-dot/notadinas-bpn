@@ -5,7 +5,7 @@ use App\Http\Controllers\NotaDinasController;
 use App\Http\Controllers\RiwayatController; 
 use Illuminate\Support\Facades\Route;
 
-// Halaman utama tidak perlu diberi nama jika fungsinya hanya mengalihkan/menampilkan hal yang sama
+
 Route::get('/', function () {
     return redirect()->route('berkas.create');
 });
@@ -22,7 +22,6 @@ Route::get('/berkas/{id}/edit', [BerkasController::class, 'edit'])
 Route::put('/berkas/{id}', [BerkasController::class, 'update'])
     ->name('berkas.update');
 
-// Endpoint AJAX untuk cascading dropdown
 Route::get('/jenis-layanan/{seksi}', [BerkasController::class, 'getJenisLayanan'])
     ->name('jenis-layanan.by-seksi');
 
@@ -30,7 +29,7 @@ Route::get('/jenis-layanan/{seksi}', [BerkasController::class, 'getJenisLayanan'
 Route::get('/pilih-berkas', [BerkasController::class, 'pilih'])->name('berkas.pilih');
 Route::post('/cetak-nota-dinas', [NotaDinasController::class, 'store'])->name('nota-dinas.store');
 
-// RIWAYAT NOTA DINAS
+// Riwayat Nota Dinas
 Route::get('/riwayat-nota-dinas', [RiwayatController::class, 'index'])
     ->name('berkas.riwayat');
 

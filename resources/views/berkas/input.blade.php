@@ -148,7 +148,6 @@
                     <h2 class="font-semibold text-gray-700 text-sm">
                         Data Berkas
                     </h2>
-
                 </div>
 
 
@@ -178,7 +177,7 @@
                         </p>
                     @enderror
 
-                    </div>
+                </div>
 
 
                     {{-- TANGGAL PENDAFTARAN --}}
@@ -568,11 +567,6 @@
 
 <style>
 
-    /*
-    |--------------------------------------------------------------------------
-    | INPUT
-    |--------------------------------------------------------------------------
-    */
 
     .form-input {
         width: 100%;
@@ -599,11 +593,6 @@
     }
 
 
-    /*
-    |--------------------------------------------------------------------------
-    | SEARCHABLE SELECT
-    |--------------------------------------------------------------------------
-    */
 
     .searchable-select {
         width: 100%;
@@ -685,11 +674,6 @@
 
 document.addEventListener('DOMContentLoaded', function () {
 
-    /*
-    |--------------------------------------------------------------------------
-    | ELEMENT
-    |--------------------------------------------------------------------------
-    */
 
     const seksiElement = document.getElementById('id_seksi');
     const jenisElement = document.getElementById('id_jenis_layanan');
@@ -698,11 +682,6 @@ document.addEventListener('DOMContentLoaded', function () {
     const oldJenisLayanan = "{{ old('id_jenis_layanan') }}";
 
 
-    /*
-    |--------------------------------------------------------------------------
-    | SEARCHABLE DROPDOWN SEKSI
-    |--------------------------------------------------------------------------
-    */
 
     const seksiSelect = new TomSelect('#id_seksi', {
 
@@ -727,11 +706,6 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
 
-    /*
-    |--------------------------------------------------------------------------
-    | SEARCHABLE DROPDOWN JENIS LAYANAN
-    |--------------------------------------------------------------------------
-    */
 
     const jenisSelect = new TomSelect('#id_jenis_layanan', {
 
@@ -747,11 +721,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         closeAfterSelect: true,
 
-        /*
-        |--------------------------------------------------------------------------
-        | Awalnya disabled
-        |--------------------------------------------------------------------------
-        */
+
 
         onInitialize: function () {
 
@@ -762,19 +732,11 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
 
-    /*
-    |--------------------------------------------------------------------------
-    | LOAD JENIS LAYANAN
-    |--------------------------------------------------------------------------
-    */
+
 
     function loadJenisLayanan(seksiId, selectedJenis = '') {
 
-        /*
-        |--------------------------------------------------------------------------
-        | Tidak ada seksi
-        |--------------------------------------------------------------------------
-        */
+       
 
         if (!seksiId) {
 
@@ -793,11 +755,6 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
 
-        /*
-        |--------------------------------------------------------------------------
-        | Loading
-        |--------------------------------------------------------------------------
-        */
 
         jenisSelect.clear();
 
@@ -811,11 +768,6 @@ document.addEventListener('DOMContentLoaded', function () {
         jenisSelect.disable();
 
 
-        /*
-        |--------------------------------------------------------------------------
-        | AJAX
-        |--------------------------------------------------------------------------
-        */
 
         fetch("{{ url('/jenis-layanan') }}/" + seksiId, {
 
@@ -838,22 +790,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
         .then(function (data) {
 
-            /*
-            |--------------------------------------------------------------------------
-            | Bersihkan pilihan
-            |--------------------------------------------------------------------------
-            */
+    
 
             jenisSelect.clear();
 
             jenisSelect.clearOptions();
 
 
-            /*
-            |--------------------------------------------------------------------------
-            | Tidak ada data
-            |--------------------------------------------------------------------------
-            */
 
             if (!data || data.length === 0) {
 
@@ -868,11 +811,6 @@ document.addEventListener('DOMContentLoaded', function () {
             }
 
 
-            /*
-            |--------------------------------------------------------------------------
-            | Tambahkan data
-            |--------------------------------------------------------------------------
-            */
 
             data.forEach(function (item) {
 
@@ -884,20 +822,10 @@ document.addEventListener('DOMContentLoaded', function () {
             });
 
 
-            /*
-            |--------------------------------------------------------------------------
-            | Aktifkan dropdown
-            |--------------------------------------------------------------------------
-            */
 
             jenisSelect.enable();
 
 
-            /*
-            |--------------------------------------------------------------------------
-            | Pilih old value jika ada
-            |--------------------------------------------------------------------------
-            */
 
             if (selectedJenis) {
 
@@ -927,15 +855,6 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
 
-    /*
-    |--------------------------------------------------------------------------
-    | LOAD OLD DATA
-    |--------------------------------------------------------------------------
-    |
-    | Kalau validasi gagal dan Laravel mengembalikan old('id_seksi'),
-    | jenis layanan akan dimuat kembali otomatis.
-    |
-    */
 
     if (oldSeksi) {
 
