@@ -10,31 +10,15 @@ use Barryvdh\DomPDF\Facade\Pdf;
 
 class NotaDinasController extends Controller
 {
-    /*
-    |--------------------------------------------------------------------------
-    | BUAT NOTA DINAS
-    |--------------------------------------------------------------------------
-    */
 
     public function store(Request $request)
     {
-        /*
-        |--------------------------------------------------------------------------
-        | VALIDASI
-        |--------------------------------------------------------------------------
-        */
 
         $validated = $request->validate([
             'berkas_id' => ['required', 'array', 'min:1'],
             'berkas_id.*' => ['required', 'exists:berkas,id_berkas'],
         ]);
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | AMBIL BERKAS YANG DIPILIH
-        |--------------------------------------------------------------------------
-        */
 
         $berkasTerpilih = Berkas::with([
             'seksi',
@@ -43,12 +27,6 @@ class NotaDinasController extends Controller
             ->whereIn('id_berkas', $validated['berkas_id'])
             ->get();
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | CEK BERKAS SUDAH FINAL
-        |--------------------------------------------------------------------------
-        */
 
         $berkasSudahFinal = $berkasTerpilih->where(
             'status',
@@ -63,12 +41,6 @@ class NotaDinasController extends Controller
         }
 
 
-        /*
-        |--------------------------------------------------------------------------
-        | CEK SEMUA BERKAS HARUS DARI SEKSI YANG SAMA
-        |--------------------------------------------------------------------------
-        */
-
         $idSeksi = $berkasTerpilih
             ->pluck('id_seksi')
             ->filter()
@@ -82,12 +54,6 @@ class NotaDinasController extends Controller
         }
 
 
-        /*
-        |--------------------------------------------------------------------------
-        | AMBIL DATA SEKSI
-        |--------------------------------------------------------------------------
-        */
-
         $seksi = $berkasTerpilih
             ->first()
             ->seksi;
@@ -100,12 +66,6 @@ class NotaDinasController extends Controller
         }
 
 
-        /*
-        |--------------------------------------------------------------------------
-        | NOMOR NOTA DINAS
-        |--------------------------------------------------------------------------
-        */
-
         $tahunSekarang = now()->year;
 
         $nomorTerakhir = NotaDinas::where('tahun', $tahunSekarang)
@@ -117,20 +77,8 @@ class NotaDinasController extends Controller
             : 1;
 
 
-        /*
-        |--------------------------------------------------------------------------
-        | JABATAN / DARI
-        |--------------------------------------------------------------------------
-        */
-
         $jabatan = 'KKS ' . $seksi->nama_seksi;
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | BUAT NOTA DINAS
-        |--------------------------------------------------------------------------
-        */
 
         $notaDinas = DB::transaction(function () use (
             $nomorBaru,
@@ -154,12 +102,6 @@ class NotaDinasController extends Controller
             ]);
 
 
-            /*
-            |--------------------------------------------------------------------------
-            | HUBUNGKAN BERKAS DENGAN NOTA DINAS
-            |--------------------------------------------------------------------------
-            */
-
             $nota->berkas()->attach(
                 $berkasTerpilih
                     ->pluck('id_berkas')
@@ -171,12 +113,6 @@ class NotaDinasController extends Controller
         });
 
 
-        /*
-        |--------------------------------------------------------------------------
-        | MASUK KE HALAMAN PREVIEW
-        |--------------------------------------------------------------------------
-        */
-
         return redirect()->route(
             'nota-dinas.preview',
             [
@@ -186,31 +122,14 @@ class NotaDinasController extends Controller
     }
 
 
-    /*
-    |--------------------------------------------------------------------------
-    | PREVIEW NOTA DINAS
-    |--------------------------------------------------------------------------
-    */
-
     public function preview(NotaDinas $notaDinas)
     {
-        /*
-        |--------------------------------------------------------------------------
-        | LOAD RELASI
-        |--------------------------------------------------------------------------
-        */
 
         $notaDinas->load([
             'berkas.seksi',
             'berkas.jenisLayanan'
         ]);
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | AMBIL SEKSI DARI BERKAS PERTAMA
-        |--------------------------------------------------------------------------
-        */
 
         $seksi = $notaDinas
             ->berkas
@@ -228,21 +147,9 @@ class NotaDinasController extends Controller
         }
 
 
-        /*
-        |--------------------------------------------------------------------------
-        | JABATAN KOORDINATOR
-        |--------------------------------------------------------------------------
-        */
-
         $jabatanKoordinator =
             'KKS ' . $seksi->nama_seksi;
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | TAMPILKAN PREVIEW
-        |--------------------------------------------------------------------------
-        */
 
         return view(
             'nota-dinas.preview',
@@ -255,31 +162,14 @@ class NotaDinasController extends Controller
     }
 
 
-    /*
-    |--------------------------------------------------------------------------
-    | CETAK / PREVIEW PDF
-    |--------------------------------------------------------------------------
-    */
-
     public function cetak(Request $request, NotaDinas $notaDinas)
     {
-        /*
-        |--------------------------------------------------------------------------
-        | LOAD DATA
-        |--------------------------------------------------------------------------
-        */
 
         $notaDinas->load([
             'berkas.seksi',
             'berkas.jenisLayanan'
         ]);
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | AMBIL SEKSI
-        |--------------------------------------------------------------------------
-        */
 
         $seksi = $notaDinas
             ->berkas
@@ -297,21 +187,9 @@ class NotaDinasController extends Controller
         }
 
 
-        /*
-        |--------------------------------------------------------------------------
-        | JABATAN KOORDINATOR
-        |--------------------------------------------------------------------------
-        */
-
         $jabatanKoordinator =
             'KKS ' . $seksi->nama_seksi;
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | GENERATE PDF
-        |--------------------------------------------------------------------------
-        */
 
         $pdf = Pdf::loadView(
             'nota-dinas.pdf',
@@ -323,30 +201,9 @@ class NotaDinasController extends Controller
         );
 
 
-        /*
-        |--------------------------------------------------------------------------
-        | UKURAN KERTAS
-        |--------------------------------------------------------------------------
-        */
-
         $pdf->setPaper('a4', 'landscape');
 
 
-        /*
-        |--------------------------------------------------------------------------
-        | NAMA FILE PDF OTOMATIS
-        |--------------------------------------------------------------------------
-        |
-        | Contoh:
-        |
-        | Nota-Dinas-No-4-Tahun-2026.pdf
-        |
-        | Jika nomor berubah menjadi 5:
-        |
-        | Nota-Dinas-No-5-Tahun-2026.pdf
-        |
-        |--------------------------------------------------------------------------
-        */
 
         $namaFile =
             'Nota-Dinas-No-' .
@@ -356,42 +213,15 @@ class NotaDinasController extends Controller
             '.pdf';
 
 
-        /*
-        |--------------------------------------------------------------------------
-        | TAMPILKAN PDF DI BROWSER
-        |--------------------------------------------------------------------------
-        |
-        | stream() = membuka PDF di browser terlebih dahulu.
-        |
-        | Pengguna masih bisa:
-        |
-        | - melihat PDF
-        | - klik tombol download
-        | - Ctrl + S
-        | - mencetak
-        |
-        |--------------------------------------------------------------------------
-        */
 
         return $pdf->stream($namaFile);
     }
 
 
-    /*
-    |--------------------------------------------------------------------------
-    | FINALISASI NOTA DINAS
-    |--------------------------------------------------------------------------
-    */
-
     public function finalisasi(
         Request $request,
         NotaDinas $notaDinas
     ) {
-        /*
-        |--------------------------------------------------------------------------
-        | PASTIKAN MASIH DRAFT
-        |--------------------------------------------------------------------------
-        */
 
         if ($notaDinas->status === 'final') {
             return redirect()
@@ -403,39 +233,18 @@ class NotaDinasController extends Controller
         }
 
 
-        /*
-        |--------------------------------------------------------------------------
-        | FINALISASI
-        |--------------------------------------------------------------------------
-        */
-
         DB::transaction(function () use ($notaDinas) {
 
-            /*
-            | Semua berkas yang ada di nota
-            | menjadi sudah_nota_dinas
-            */
 
             $notaDinas->berkas()->update([
                 'status' => 'sudah_nota_dinas'
             ]);
 
 
-            /*
-            | Nota Dinas menjadi final
-            */
-
             $notaDinas->update([
                 'status' => 'final'
             ]);
         });
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | KEMBALI KE HALAMAN PILIH BERKAS
-        |--------------------------------------------------------------------------
-        */
 
         return redirect()
             ->route('berkas.pilih')
@@ -449,14 +258,10 @@ class NotaDinasController extends Controller
             );
     }
 
-    /*
-|--------------------------------------------------------------------------
-| RIWAYAT NOTA DINAS
-|--------------------------------------------------------------------------
-*/
 
-public function riwayat()
-{
+
+    public function riwayat()
+    {
     $notaDinas = NotaDinas::with([
         'berkas.seksi',
         'berkas.jenisLayanan'
@@ -466,5 +271,5 @@ public function riwayat()
         ->get();
 
     return view('nota-dinas.riwayat', compact('notaDinas'));
-}
+    }
 }
