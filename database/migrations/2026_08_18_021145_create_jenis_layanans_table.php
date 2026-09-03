@@ -12,8 +12,8 @@ return new class extends Migration
             $table->id();
 
             $table->foreignId('seksi_id')
-                ->constrained('seksi')
-                ->cascadeOnDelete();
+                ->constrained('seksi', 'id_seksi')
+                ->nullOnDelete();
 
             $table->string('nama_layanan');
 
@@ -25,4 +25,4 @@ return new class extends Migration
     {
         Schema::dropIfExists('jenis_layanan');
     }
-};
+}; 
