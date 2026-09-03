@@ -22,7 +22,7 @@ jobs:
     timeout-minutes: 15
     permissions:
       contents: read
-    
+
     services:
       mysql:
         image: mysql:8.0
@@ -39,10 +39,10 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+        uses: actions/checkout@v4
 
       - name: Setup PHP
-        uses: shivammathur/setup-php@e6f75134d35752277f093989e72e140eaa222f35 # v2.28.0
+        uses: shivammathur/setup-php@v2
         with:
           php-version: '8.1'
           extensions: mbstring, dom, fileinfo, mysql, gd, bcmath
@@ -54,7 +54,7 @@ jobs:
         run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
 
       - name: Cache Composer dependencies
-        uses: actions/cache@ab5e6d0c87105b4c9c2047343972218f562e4319 # v4.0.1
+        uses: actions/cache@v4
         with:
           path: ${{ steps.composer-cache.outputs.dir }}
           key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
@@ -64,7 +64,7 @@ jobs:
         run: composer install --no-interaction --prefer-dist --optimize-autoloader --no-progress
 
       - name: Setup Node.js
-        uses: actions/setup-node@60edb5dd545a775178f52524783378180af0d1f8 # v4.0.2
+        uses: actions/setup-node@v4
         with:
           node-version: '20'
           cache: 'npm'
@@ -110,14 +110,14 @@ jobs:
           DB_PASSWORD: root
 
       - name: Upload coverage artifact
-        uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3 # v4.3.1
+        uses: actions/upload-artifact@v4
         with:
           name: coverage-report
           path: coverage.xml
           retention-days: 7
 
       - name: Upload test results
-        uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3 # v4.3.1
+        uses: actions/upload-artifact@v4
         if: always()
         with:
           name: test-results
@@ -134,16 +134,16 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+        uses: actions/checkout@v4
 
       - name: Setup PHP
-        uses: shivammathur/setup-php@e6f75134d35752277f093989e72e140eaa222f35 # v2.28.0
+        uses: shivammathur/setup-php@v2
         with:
           php-version: '8.1'
           tools: composer:v2
 
       - name: Cache Composer dependencies
-        uses: actions/cache@ab5e6d0c87105b4c9c2047343972218f562e4319 # v4.0.1
+        uses: actions/cache@v4
         with:
           path: ~/.composer/cache
           key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
@@ -167,16 +167,16 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+        uses: actions/checkout@v4
 
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@1b1aada464948af03b950897e5eb522f92603cc2 # v3.24.9
+        uses: github/codeql-action/init@v3
         with:
-          languages: javascript
+          languages: javascript, php
           queries: security-and-quality
 
       - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@1b1aada464948af03b950897e5eb522f92603cc2 # v3.24.9
+        uses: github/codeql-action/analyze@v3
         with:
           category: "/language:javascript"
 
@@ -191,12 +191,12 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
       - name: Run Gitleaks
-        uses: gitleaks/gitleaks-action@44c470e75575de75e159db4a7da5b3b4e9d7bc7f # v2.3.4
+        uses: gitleaks/gitleaks-action@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITLEAKS_ENABLE_SUMMARY: true
@@ -212,10 +212,10 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+        uses: actions/checkout@v4
 
       - name: Setup PHP
-        uses: shivammathur/setup-php@e6f75134d35752277f093989e72e140eaa222f35 # v2.28.0
+        uses: shivammathur/setup-php@v2
         with:
           php-version: '8.1'
           tools: composer:v2
@@ -236,7 +236,7 @@ jobs:
         run: ./local-php-security-checker --format=json --no-dev > php-security-report.json || true
 
       - name: Upload security report
-        uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3 # v4.3.1
+        uses: actions/upload-artifact@v4
         with:
           name: php-security-report
           path: php-security-report.json
@@ -251,7 +251,7 @@ jobs:
           fi
 
       - name: Setup Node.js
-        uses: actions/setup-node@60edb5dd545a775178f52524783378180af0d1f8 # v4.0.2
+        uses: actions/setup-node@v4
         with:
           node-version: '20'
 
@@ -269,10 +269,10 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+        uses: actions/checkout@v4
 
       - name: Dependency Review
-        uses: actions/dependency-review-action@0c155c5e8556a497adf53f2c18edabf945ed8e70 # v4.2.5
+        uses: actions/dependency-review-action@v4
         with:
           fail-on-severity: high
           deny-licenses: GPL-2.0, GPL-3.0
@@ -301,10 +301,10 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+        uses: actions/checkout@v4
 
       - name: Setup PHP
-        uses: shivammathur/setup-php@e6f75134d35752277f093989e72e140eaa222f35 # v2.28.0
+        uses: shivammathur/setup-php@v2
         with:
           php-version: '8.1'
           extensions: mbstring, dom, fileinfo, mysql, gd, bcmath
@@ -314,7 +314,7 @@ jobs:
         run: composer install --no-interaction --prefer-dist
 
       - name: Setup Node.js
-        uses: actions/setup-node@60edb5dd545a775178f52524783378180af0d1f8 # v4.0.2
+        uses: actions/setup-node@v4
         with:
           node-version: '20'
           cache: 'npm'
@@ -360,7 +360,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+        uses: actions/checkout@v4
 
       - name: Install Syft
         run: |
@@ -370,7 +370,7 @@ jobs:
         run: syft dir:. -o spdx-json=sbom.spdx.json -o cyclonedx-json=sbom.cyclonedx.json
 
       - name: Install Cosign
-        uses: sigstore/cosign-installer@e1523de7571e31dbe865fd2e80c5c7c23ae71eb4 # v3.4.0
+        uses: sigstore/cosign-installer@v3
 
       - name: Sign SBOM with Cosign (keyless)
         run: |
@@ -380,7 +380,7 @@ jobs:
             sbom.spdx.json
 
       - name: Upload SBOM artifacts
-        uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3 # v4.3.1
+        uses: actions/upload-artifact@v4
         with:
           name: sbom-artifacts
           path: |
