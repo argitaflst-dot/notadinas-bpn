@@ -30,7 +30,6 @@ class JenisLayananSeeder extends Seeder
             'Pemeliharaan Hak Tanah, Ruang dan Pembinaan PPAT'
         )->first();
 
-
         // Seksi 1
         $layananSeksi1 = [
             'Hapusnya Hak',
@@ -50,11 +49,10 @@ class JenisLayananSeeder extends Seeder
 
         foreach ($layananSeksi1 as $nama) {
             JenisLayanan::firstOrCreate([
-                'id_seksi' => $seksi1->id_seksi,
+                'seksi_id' => $seksi1->id,
                 'nama_layanan' => $nama,
             ]);
         }
-
 
         // Seksi 2
         $layananSeksi2 = [
@@ -68,11 +66,10 @@ class JenisLayananSeeder extends Seeder
 
         foreach ($layananSeksi2 as $nama) {
             JenisLayanan::firstOrCreate([
-                'id_seksi' => $seksi2->id_seksi,
+                'seksi_id' => $seksi2->id,
                 'nama_layanan' => $nama,
             ]);
         }
-
 
         // Seksi 3
         $layananSeksi3 = [
@@ -83,11 +80,10 @@ class JenisLayananSeeder extends Seeder
 
         foreach ($layananSeksi3 as $nama) {
             JenisLayanan::firstOrCreate([
-                'id_seksi' => $seksi3->id_seksi,
+                'seksi_id' => $seksi3->id,
                 'nama_layanan' => $nama,
             ]);
         }
-
 
         // Seksi 4
         $layananSeksi4 = [
@@ -129,7 +125,7 @@ class JenisLayananSeeder extends Seeder
 
         foreach ($layananSeksi4 as $nama) {
             JenisLayanan::firstOrCreate([
-                'id_seksi' => $seksi4->id_seksi,
+                'seksi_id' => $seksi4->id,
                 'nama_layanan' => $nama,
             ]);
         }

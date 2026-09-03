@@ -3,8 +3,6 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use App\Models\Seksi;
-use App\Models\Berkas;
 
 class JenisLayanan extends Model
 {

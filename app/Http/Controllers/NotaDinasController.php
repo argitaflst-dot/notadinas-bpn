@@ -2,15 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\NotaDinas;
 use App\Models\Berkas;
+use App\Models\NotaDinas;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Barryvdh\DomPDF\Facade\Pdf;
 
 class NotaDinasController extends Controller
 {
-
     public function store(Request $request)
     {
 
@@ -19,14 +18,12 @@ class NotaDinasController extends Controller
             'berkas_id.*' => ['required', 'exists:berkas,id_berkas'],
         ]);
 
-
         $berkasTerpilih = Berkas::with([
             'seksi',
-            'jenisLayanan'
+            'jenisLayanan',
         ])
             ->whereIn('id_berkas', $validated['berkas_id'])
             ->get();
-
 
         $berkasSudahFinal = $berkasTerpilih->where(
             'status',
@@ -35,11 +32,9 @@ class NotaDinasController extends Controller
 
         if ($berkasSudahFinal->isNotEmpty()) {
             return back()->withErrors([
-                'berkas_id' =>
-                    'Ada berkas yang sudah menjadi Nota Dinas dan tidak dapat dipilih kembali.'
+                'berkas_id' => 'Ada berkas yang sudah menjadi Nota Dinas dan tidak dapat dipilih kembali.',
             ]);
         }
-
 
         $idSeksi = $berkasTerpilih
             ->pluck('id_seksi')
@@ -48,23 +43,19 @@ class NotaDinasController extends Controller
 
         if ($idSeksi->count() !== 1) {
             return back()->withErrors([
-                'berkas_id' =>
-                    'Berkas yang dipilih harus berasal dari seksi yang sama.'
+                'berkas_id' => 'Berkas yang dipilih harus berasal dari seksi yang sama.',
             ]);
         }
-
 
         $seksi = $berkasTerpilih
             ->first()
             ->seksi;
 
-        if (!$seksi) {
+        if (! $seksi) {
             return back()->withErrors([
-                'berkas_id' =>
-                    'Data seksi pada berkas tidak ditemukan.'
+                'berkas_id' => 'Data seksi pada berkas tidak ditemukan.',
             ]);
         }
-
 
         $tahunSekarang = now()->year;
 
@@ -76,9 +67,7 @@ class NotaDinasController extends Controller
             ? $nomorTerakhir + 1
             : 1;
 
-
-        $jabatan = 'KKS ' . $seksi->nama_seksi;
-
+        $jabatan = 'KKS '.$seksi->nama_seksi;
 
         $notaDinas = DB::transaction(function () use (
             $nomorBaru,
@@ -91,8 +80,7 @@ class NotaDinasController extends Controller
                 'nomor' => $nomorBaru,
                 'tahun' => $tahunSekarang,
 
-                'kepada' =>
-                    'Kepala Seksi Penetapan Hak dan Pendaftaran',
+                'kepada' => 'Kepala Seksi Penetapan Hak dan Pendaftaran',
 
                 'dari' => $jabatan,
 
@@ -101,55 +89,46 @@ class NotaDinasController extends Controller
                 'status' => 'draft',
             ]);
 
-
             $nota->berkas()->attach(
                 $berkasTerpilih
                     ->pluck('id_berkas')
                     ->toArray()
             );
 
-
             return $nota;
         });
-
 
         return redirect()->route(
             'nota-dinas.preview',
             [
-                'notaDinas' => $notaDinas->getKey()
+                'notaDinas' => $notaDinas->getKey(),
             ]
         );
     }
-
 
     public function preview(NotaDinas $notaDinas)
     {
 
         $notaDinas->load([
             'berkas.seksi',
-            'berkas.jenisLayanan'
+            'berkas.jenisLayanan',
         ]);
-
 
         $seksi = $notaDinas
             ->berkas
             ->first()
             ?->seksi;
 
-
-        if (!$seksi) {
+        if (! $seksi) {
             return redirect()
                 ->route('berkas.pilih')
                 ->withErrors([
-                    'berkas_id' =>
-                        'Seksi dari Nota Dinas tidak ditemukan.'
+                    'berkas_id' => 'Seksi dari Nota Dinas tidak ditemukan.',
                 ]);
         }
 
-
         $jabatanKoordinator =
-            'KKS ' . $seksi->nama_seksi;
-
+            'KKS '.$seksi->nama_seksi;
 
         return view(
             'nota-dinas.preview',
@@ -161,35 +140,29 @@ class NotaDinasController extends Controller
         );
     }
 
-
     public function cetak(Request $request, NotaDinas $notaDinas)
     {
 
         $notaDinas->load([
             'berkas.seksi',
-            'berkas.jenisLayanan'
+            'berkas.jenisLayanan',
         ]);
-
 
         $seksi = $notaDinas
             ->berkas
             ->first()
             ?->seksi;
 
-
-        if (!$seksi) {
+        if (! $seksi) {
             return redirect()
                 ->route('berkas.pilih')
                 ->withErrors([
-                    'berkas_id' =>
-                        'Seksi dari Nota Dinas tidak ditemukan.'
+                    'berkas_id' => 'Seksi dari Nota Dinas tidak ditemukan.',
                 ]);
         }
 
-
         $jabatanKoordinator =
-            'KKS ' . $seksi->nama_seksi;
-
+            'KKS '.$seksi->nama_seksi;
 
         $pdf = Pdf::loadView(
             'nota-dinas.pdf',
@@ -200,23 +173,17 @@ class NotaDinasController extends Controller
             )
         );
 
-
         $pdf->setPaper('a4', 'landscape');
 
-
-
         $namaFile =
-            'Nota-Dinas-No-' .
-            $notaDinas->nomor .
-            '-Tahun-' .
-            $notaDinas->tahun .
+            'Nota-Dinas-No-'.
+            $notaDinas->nomor.
+            '-Tahun-'.
+            $notaDinas->tahun.
             '.pdf';
-
-
 
         return $pdf->stream($namaFile);
     }
-
 
     public function finalisasi(
         Request $request,
@@ -232,17 +199,14 @@ class NotaDinasController extends Controller
                 );
         }
 
-
         DB::transaction(function () use ($notaDinas) {
 
-
             $notaDinas->berkas()->update([
-                'status' => 'sudah_nota_dinas'
+                'status' => 'sudah_nota_dinas',
             ]);
 
-
             $notaDinas->update([
-                'status' => 'final'
+                'status' => 'final',
             ]);
         });
 
@@ -250,26 +214,24 @@ class NotaDinasController extends Controller
             ->route('berkas.pilih')
             ->with(
                 'success',
-                'Nota Dinas No. ' .
-                $notaDinas->nomor .
-                ' Tahun ' .
-                $notaDinas->tahun .
+                'Nota Dinas No. '.
+                $notaDinas->nomor.
+                ' Tahun '.
+                $notaDinas->tahun.
                 ' berhasil difinalkan.'
             );
     }
 
-
-
     public function riwayat()
     {
-    $notaDinas = NotaDinas::with([
-        'berkas.seksi',
-        'berkas.jenisLayanan'
-    ])
-        ->orderByDesc('tahun')
-        ->orderByDesc('nomor')
-        ->get();
+        $notaDinas = NotaDinas::with([
+            'berkas.seksi',
+            'berkas.jenisLayanan',
+        ])
+            ->orderByDesc('tahun')
+            ->orderByDesc('nomor')
+            ->get();
 
-    return view('nota-dinas.riwayat', compact('notaDinas'));
+        return view('nota-dinas.riwayat', compact('notaDinas'));
     }
 }

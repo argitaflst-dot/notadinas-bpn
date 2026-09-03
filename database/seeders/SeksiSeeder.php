@@ -2,9 +2,8 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
-use Illuminate\Database\Seeder;
 use App\Models\Seksi;
+use Illuminate\Database\Seeder;
 
 class SeksiSeeder extends Seeder
 {
@@ -22,7 +21,7 @@ class SeksiSeeder extends Seeder
 
         foreach ($seksi as $nama) {
             Seksi::firstOrCreate([
-                'nama_seksi' => $nama
+                'nama_seksi' => $nama,
             ]);
         }
     }

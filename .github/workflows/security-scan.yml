@@ -1,0 +1,106 @@
+name: Security Scan - Scheduled
+
+# Weekly full security audit on main branch
+on:
+  schedule:
+    - cron: '0 3 * * 1'  # Every Monday at 3 AM UTC
+  workflow_dispatch:  # Allow manual trigger
+
+permissions:
+  contents: read
+
+jobs:
+  full-security-audit:
+    name: Full Security Audit
+    runs-on: ubuntu-22.04
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      security-events: write
+      issues: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+        with:
+          fetch-depth: 0
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@e6f75134d35752277f093989e72e140eaa222f35 # v2.28.0
+        with:
+          php-version: '8.1'
+          tools: composer:v2
+
+      - name: Install dependencies
+        run: composer install --no-interaction --prefer-dist
+
+      - name: Run full history secret scan
+        uses: gitleaks/gitleaks-action@44c470e75575de75e159db4a7da5b3b4e9d7bc7f # v2.3.4
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Deep dependency audit
+        run: |
+          echo "Running comprehensive dependency audit..."
+          composer audit --format=json > composer-audit-full.json || true
+          npm audit --json > npm-audit-full.json || true
+
+      - name: Install Trivy
+        run: |
+          wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | sudo apt-key add -
+          echo "deb https://aquasecurity.github.io/trivy-repo/deb $(lsb_release -sc) main" | sudo tee -a /etc/apt/sources.list.d/trivy.list
+          sudo apt-get update
+          sudo apt-get install trivy
+
+      - name: Trivy filesystem scan
+        run: trivy fs --severity HIGH,CRITICAL --format sarif --output trivy-results.sarif .
+
+      - name: Upload Trivy results to GitHub Security
+        uses: github/codeql-action/upload-sarif@1b1aada464948af03b950897e5eb522f92603cc2 # v3.24.9
+        with:
+          sarif_file: trivy-results.sarif
+          category: trivy-filesystem
+
+      - name: Check for outdated packages
+        run: |
+          composer outdated --direct --strict > outdated-packages.txt || true
+          npm outdated > npm-outdated.txt || true
+
+      - name: Create security report issue
+        if: failure()
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+        with:
+          script: |
+            const fs = require('fs');
+            let body = '## 🔒 Weekly Security Audit Report\n\n';
+            body += '**Scan Date:** ' + new Date().toISOString() + '\n\n';
+            body += '**Status:** ⚠️ Issues Found\n\n';
+            body += '### Action Required\n\n';
+            body += 'The weekly security scan has detected vulnerabilities or outdated packages.\n\n';
+            body += 'Please review the workflow logs for details:\n';
+            body += `${process.env.GITHUB_SERVER_URL}/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}\n\n`;
+            body += '### Next Steps\n';
+            body += '1. Review the security findings in the Security tab\n';
+            body += '2. Update vulnerable dependencies\n';
+            body += '3. Re-run this workflow to verify fixes\n';
+
+            github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: '🔒 Weekly Security Audit - Issues Detected',
+              body: body,
+              labels: ['security', 'automated']
+            });
+
+      - name: Upload audit artifacts
+        uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3 # v4.3.1
+        if: always()
+        with:
+          name: security-audit-reports
+          path: |
+            composer-audit-full.json
+            npm-audit-full.json
+            outdated-packages.txt
+            npm-outdated.txt
+            trivy-results.sarif
+          retention-days: 90

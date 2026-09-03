@@ -12,8 +12,9 @@ return new class extends Migration
             $table->id();
 
             $table->foreignId('seksi_id')
+                ->nullable()
                 ->constrained('seksi')
-                ->cascadeOnDelete();
+                ->nullOnDelete();
 
             $table->string('nama_layanan');
 
