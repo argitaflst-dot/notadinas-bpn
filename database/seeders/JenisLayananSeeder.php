@@ -30,7 +30,6 @@ class JenisLayananSeeder extends Seeder
             'Pemeliharaan Hak Tanah, Ruang dan Pembinaan PPAT'
         )->first();
 
-
         // Seksi 1
         $layananSeksi1 = [
             'Hapusnya Hak',
@@ -55,7 +54,6 @@ class JenisLayananSeeder extends Seeder
             ]);
         }
 
-
         // Seksi 2
         $layananSeksi2 = [
             'Permohonan SK Pemberian HGB Badan Hukum Untuk Pembangunan Rumah MBR',
@@ -73,7 +71,6 @@ class JenisLayananSeeder extends Seeder
             ]);
         }
 
-
         // Seksi 3
         $layananSeksi3 = [
             'Permohonan SK Pemberian Hak Guna Bangunan Instansi/Badan Usaha Pemerintah',
@@ -87,7 +84,6 @@ class JenisLayananSeeder extends Seeder
                 'nama_layanan' => $nama,
             ]);
         }
-
 
         // Seksi 4
         $layananSeksi4 = [

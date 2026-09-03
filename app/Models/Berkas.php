@@ -37,7 +37,6 @@ class Berkas extends Model
         'luas' => 'decimal:2',
     ];
 
-
     public function jenisLayanan()
     {
         return $this->belongsTo(
@@ -46,7 +45,6 @@ class Berkas extends Model
             'id_jenis_layanan'
         );
     }
-
 
     public function seksi()
     {

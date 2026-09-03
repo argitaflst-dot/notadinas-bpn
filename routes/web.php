@@ -2,9 +2,8 @@
 
 use App\Http\Controllers\BerkasController;
 use App\Http\Controllers\NotaDinasController;
-use App\Http\Controllers\RiwayatController; 
+use App\Http\Controllers\RiwayatController;
 use Illuminate\Support\Facades\Route;
-
 
 Route::get('/', function () {
     return redirect()->route('berkas.create');
@@ -33,7 +32,7 @@ Route::post('/cetak-nota-dinas', [NotaDinasController::class, 'store'])->name('n
 Route::get('/riwayat-nota-dinas', [RiwayatController::class, 'index'])
     ->name('berkas.riwayat');
 
-Route::get('/nota-dinas/{notaDinas}/preview', 
+Route::get('/nota-dinas/{notaDinas}/preview',
     [NotaDinasController::class, 'preview']
 )->name('nota-dinas.preview');
 Route::post(
