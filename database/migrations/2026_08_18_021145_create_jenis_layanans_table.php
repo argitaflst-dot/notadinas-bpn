@@ -12,6 +12,7 @@ return new class extends Migration
             $table->id();
 
             $table->foreignId('seksi_id')
+                ->nullable()
                 ->constrained('seksi', 'id_seksi')
                 ->nullOnDelete();
 
@@ -25,4 +26,4 @@ return new class extends Migration
     {
         Schema::dropIfExists('jenis_layanan');
     }
-}; 
+};
