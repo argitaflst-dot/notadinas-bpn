@@ -13,7 +13,7 @@ return new class extends Migration
 
             $table->foreignId('seksi_id')
                 ->nullable()
-                ->constrained('seksi', 'id_seksi')
+                ->constrained('seksi')
                 ->nullOnDelete();
 
             $table->string('nama_layanan');
