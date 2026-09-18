@@ -60,8 +60,7 @@ class NotaDinasController extends Controller
         $tahunSekarang = now()->year;
 
         $nomorTerakhir = NotaDinas::where('tahun', $tahunSekarang)
-            ->where('status', 'final')
-            ->max('nomor');
+    ->max(DB::raw('CAST(nomor AS UNSIGNED)'));
 
         $nomorBaru = $nomorTerakhir
             ? $nomorTerakhir + 1
@@ -223,15 +222,22 @@ class NotaDinasController extends Controller
     }
 
     public function riwayat()
-    {
-        $notaDinas = NotaDinas::with([
-            'berkas.seksi',
-            'berkas.jenisLayanan',
-        ])
-            ->orderByDesc('tahun')
-            ->orderByDesc('nomor')
-            ->get();
+{
+    $notaDinasList = NotaDinas::with([
+        'berkas.seksi',
+        'berkas.jenisLayanan',
+    ])
+        ->withCount('berkas')
+        ->where('status', 'final')
+        ->orderByDesc('tahun')
+        ->orderByDesc('nomor')
+        ->get();
 
-        return view('nota-dinas.riwayat', compact('notaDinas'));
-    }
+    $seksiList = \App\Models\Seksi::orderBy('nama_seksi')->get();
+
+    return view('nota-dinas.riwayat', compact(
+        'notaDinasList',
+        'seksiList'
+    ));
+}
 }
