@@ -10,145 +10,140 @@ use Illuminate\Support\Facades\DB;
 
 class NotaDinasController extends Controller
 {
-    
-public function store(Request $request)
-{
-    $validated = $request->validate([
-        'berkas_id' => ['required', 'array', 'min:1'],
-        'berkas_id.*' => ['required', 'exists:berkas,id_berkas'],
-    ]);
-
-    // Normalisasi ID agar perbandingan konsisten
-    $idDipilih = collect($validated['berkas_id'])
-        ->map(fn ($id) => (int) $id)
-        ->unique()
-        ->sort()
-        ->values()
-        ->all();
-
-    $berkasTerpilih = Berkas::with([
-        'seksi',
-        'jenisLayanan',
-    ])
-        ->whereIn('id_berkas', $idDipilih)
-        ->get();
-
-    $berkasSudahFinal = $berkasTerpilih->where(
-        'status',
-        'sudah_nota_dinas'
-    );
-
-    if ($berkasSudahFinal->isNotEmpty()) {
-        return back()->withErrors([
-            'berkas_id' =>
-                'Ada berkas yang sudah menjadi Nota Dinas dan tidak dapat dipilih kembali.',
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'berkas_id' => ['required', 'array', 'min:1'],
+            'berkas_id.*' => ['required', 'exists:berkas,id_berkas'],
         ]);
-    }
 
-    $idSeksi = $berkasTerpilih
-        ->pluck('id_seksi')
-        ->filter()
-        ->unique();
+        // Normalisasi ID agar perbandingan konsisten
+        $idDipilih = collect($validated['berkas_id'])
+            ->map(fn ($id) => (int) $id)
+            ->unique()
+            ->sort()
+            ->values()
+            ->all();
 
-    if ($idSeksi->count() !== 1) {
-        return back()->withErrors([
-            'berkas_id' =>
-                'Berkas yang dipilih harus berasal dari seksi yang sama.',
-        ]);
-    }
+        $berkasTerpilih = Berkas::with([
+            'seksi',
+            'jenisLayanan',
+        ])
+            ->whereIn('id_berkas', $idDipilih)
+            ->get();
 
-    $seksi = $berkasTerpilih->first()->seksi;
+        $berkasSudahFinal = $berkasTerpilih->where(
+            'status',
+            'sudah_nota_dinas'
+        );
 
-    if (! $seksi) {
-        return back()->withErrors([
-            'berkas_id' =>
-                'Data seksi pada berkas tidak ditemukan.',
-        ]);
-    }
+        if ($berkasSudahFinal->isNotEmpty()) {
+            return back()->withErrors([
+                'berkas_id' => 'Ada berkas yang sudah menjadi Nota Dinas dan tidak dapat dipilih kembali.',
+            ]);
+        }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Cek draft dengan kumpulan berkas yang sama
-    |--------------------------------------------------------------------------
-    */
+        $idSeksi = $berkasTerpilih
+            ->pluck('id_seksi')
+            ->filter()
+            ->unique();
 
-    $draftLama = NotaDinas::where('tahun', now()->year)
-        ->where('status', 'draft')
-        ->with('berkas')
-        ->get()
-        ->first(function ($draft) use ($idDipilih) {
+        if ($idSeksi->count() !== 1) {
+            return back()->withErrors([
+                'berkas_id' => 'Berkas yang dipilih harus berasal dari seksi yang sama.',
+            ]);
+        }
 
-            $idDraft = $draft->berkas
-                ->pluck('id_berkas')
-                ->map(fn ($id) => (int) $id)
-                ->unique()
-                ->sort()
-                ->values()
-                ->all();
+        $seksi = $berkasTerpilih->first()->seksi;
 
-            return $idDraft === $idDipilih;
+        if (! $seksi) {
+            return back()->withErrors([
+                'berkas_id' => 'Data seksi pada berkas tidak ditemukan.',
+            ]);
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Cek draft dengan kumpulan berkas yang sama
+        |--------------------------------------------------------------------------
+        */
+
+        $draftLama = NotaDinas::where('tahun', now()->year)
+            ->where('status', 'draft')
+            ->with('berkas')
+            ->get()
+            ->first(function ($draft) use ($idDipilih) {
+
+                $idDraft = $draft->berkas
+                    ->pluck('id_berkas')
+                    ->map(fn ($id) => (int) $id)
+                    ->unique()
+                    ->sort()
+                    ->values()
+                    ->all();
+
+                return $idDraft === $idDipilih;
+            });
+
+        // Jika draft sudah ada, gunakan draft lama
+        if ($draftLama) {
+            return redirect()->route(
+                'nota-dinas.preview',
+                [
+                    'notaDinas' => $draftLama->getKey(),
+                ]
+            );
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Buat nomor baru
+        |--------------------------------------------------------------------------
+        */
+
+        $tahunSekarang = now()->year;
+        $jabatan = 'KKS '.$seksi->nama_seksi;
+
+        $notaDinas = DB::transaction(function () use (
+            $tahunSekarang,
+            $berkasTerpilih,
+            $jabatan
+        ) {
+
+            $nomorTerakhir = NotaDinas::where(
+                'tahun',
+                $tahunSekarang
+            )
+                ->lockForUpdate()
+                ->max(DB::raw('CAST(nomor AS UNSIGNED)'));
+
+            $nomorBaru = ($nomorTerakhir ?? 0) + 1;
+
+            $nota = NotaDinas::create([
+                'nomor' => $nomorBaru,
+                'tahun' => $tahunSekarang,
+                'kepada' => 'Kepala Seksi Penetapan Hak dan Pendaftaran',
+                'dari' => $jabatan,
+                'tanggal' => now(),
+                'status' => 'draft',
+            ]);
+
+            $nota->berkas()->attach(
+                $berkasTerpilih
+                    ->pluck('id_berkas')
+                    ->toArray()
+            );
+
+            return $nota;
         });
 
-    // Jika draft sudah ada, gunakan draft lama
-    if ($draftLama) {
         return redirect()->route(
             'nota-dinas.preview',
             [
-                'notaDinas' => $draftLama->getKey(),
+                'notaDinas' => $notaDinas->getKey(),
             ]
         );
     }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Buat nomor baru
-    |--------------------------------------------------------------------------
-    */
-
-    $tahunSekarang = now()->year;
-    $jabatan = 'KKS ' . $seksi->nama_seksi;
-
-    $notaDinas = DB::transaction(function () use (
-        $tahunSekarang,
-        $berkasTerpilih,
-        $jabatan
-    ) {
-
-        $nomorTerakhir = NotaDinas::where(
-            'tahun',
-            $tahunSekarang
-        )
-            ->lockForUpdate()
-            ->max(DB::raw('CAST(nomor AS UNSIGNED)'));
-
-        $nomorBaru = ($nomorTerakhir ?? 0) + 1;
-
-        $nota = NotaDinas::create([
-            'nomor' => $nomorBaru,
-            'tahun' => $tahunSekarang,
-            'kepada' =>
-                'Kepala Seksi Penetapan Hak dan Pendaftaran',
-            'dari' => $jabatan,
-            'tanggal' => now(),
-            'status' => 'draft',
-        ]);
-
-        $nota->berkas()->attach(
-            $berkasTerpilih
-                ->pluck('id_berkas')
-                ->toArray()
-        );
-
-        return $nota;
-    });
-
-    return redirect()->route(
-        'nota-dinas.preview',
-        [
-            'notaDinas' => $notaDinas->getKey(),
-        ]
-    );
-}
 
     public function preview(NotaDinas $notaDinas)
     {
@@ -267,22 +262,22 @@ public function store(Request $request)
     }
 
     public function riwayat()
-{
-    $notaDinasList = NotaDinas::with([
-        'berkas.seksi',
-        'berkas.jenisLayanan',
-    ])
-        ->withCount('berkas')
-        ->where('status', 'final')
-        ->orderByDesc('tahun')
-        ->orderByDesc('nomor')
-        ->get();
+    {
+        $notaDinasList = NotaDinas::with([
+            'berkas.seksi',
+            'berkas.jenisLayanan',
+        ])
+            ->withCount('berkas')
+            ->where('status', 'final')
+            ->orderByDesc('tahun')
+            ->orderByDesc('nomor')
+            ->get();
 
-    $seksiList = \App\Models\Seksi::orderBy('nama_seksi')->get();
+        $seksiList = \App\Models\Seksi::orderBy('nama_seksi')->get();
 
-    return view('nota-dinas.riwayat', compact(
-        'notaDinasList',
-        'seksiList'
-    ));
-}
+        return view('nota-dinas.riwayat', compact(
+            'notaDinasList',
+            'seksiList'
+        ));
+    }
 }
